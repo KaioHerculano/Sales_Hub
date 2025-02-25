@@ -1,56 +1,64 @@
 <div class="row flex-nowrap">
-  <div class="col-auto col-md-0 col-xl-0 px-0 bg-clear">
-    <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white">
-      <button class="btn btn-clear d-block d-sm-none mb-3" type="button" data-bs-toggle="collapse"
-        data-bs-target="#menuCollapse" aria-expanded="false" aria-controls="menuCollapse">
-        <i class="bi bi-list fs-4"></i>
-      </button>
-      <div class="collapse d-sm-block" id="menuCollapse">
-        <ul class="nav flex-column align-items-start" id="menu">
+  <div class="col-12 px-0">
+    <div class="d-flex justify-content-start px-3 pt-2">
+      <div class="dropdown mb-6">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-list"></i> Menu
+        </button>
+        <ul class="dropdown-menu">
           <li>
-            <a href="#" class="nav-link px-0 align-middle">
-              <i class="bi bi-speedometer2 fs-4"></i>
-              <span class="ms-1">Dashboard</span>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-speedometer2"></i> Dashboard
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link px-0 align-middle">
-              <i class="bi bi-truck fs-4"></i>
-              <span class="ms-1">Fornecedores</span>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-truck"></i> Fornecedores
             </a>
           </li>
           <li>
-            <a href="{% url 'brand_list' %}" class="nav-link px-0 align-middle">
-              <i class="bi bi-shop fs-4"></i>
-              <span class="ms-1">Marcas</span>
+            <a class="dropdown-item" href="{% url 'brand_list' %}">
+              <i class="bi bi-shop"></i> Marcas
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link px-0 align-middle">
-              <i class="bi bi-tags fs-4"></i>
-              <span class="ms-1">Categorias</span>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-tags"></i> Categorias
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link px-0 align-middle">
-              <i class="bi bi-box-seam fs-4"></i>
-              <span class="ms-1">Produtos</span>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-box-seam"></i> Produtos
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link px-0 align-middle">
-              <i class="bi bi-arrow-down-left-square fs-4"></i>
-              <span class="ms-1">Entradas</span>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-arrow-down-left-square"></i> Entradas
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link px-0 align-middle">
-              <i class="bi bi-arrow-up-right-square fs-4"></i>
-              <span class="ms-1">Saídas</span>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-arrow-up-right-square"></i> Saídas
             </a>
           </li>
         </ul>
       </div>
-      <hr>
     </div>
   </div>
+</div>
+
+<style>
+.dropdown-item i {
+  margin-right: 6px;
+}
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-menu {
+  min-width: 200px;
+}
+</style>
