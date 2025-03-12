@@ -7,6 +7,7 @@ class Inflow(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='inflows')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='inflows')
     quantity = models.IntegerField()
+    numbering = models.CharField(max_length=2, default='')
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
