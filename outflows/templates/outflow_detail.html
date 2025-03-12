@@ -3,11 +3,10 @@
 {% block content %}
 
     <div class="container mt-4">
-        <h3 class="display-6 fw-bold">Detalhes da Entrada</h3>
+        <h3 class="display-6 fw-bold">Detalhes da Saída</h3>
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title fw-bold">{{ object.product }}</h3>
-                <p class="card-text">Fornecedor: <strong>{{ object.supplier }}</strong></p>
                 {% if object.numbering %}
                     <p class="card-text">Numeração: <strong>{{ object.numbering }}</strong></p>
                 {% endif %}
@@ -15,7 +14,7 @@
                 <p class="card-text">{{ object.description }}</p>
             </div>
         </div>
-        <a href="{% url 'inflow_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>
+        <a href="{% url 'outflow_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>
     </div>
 
 {% endblock %}
