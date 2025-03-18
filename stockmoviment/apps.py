@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class OutflowsConfig(AppConfig):
+class StockMovimentConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'outflows'
+    name = 'stockmoviment'
 
     def ready(self):
-        import outflows.signals
+        import stockmoviment.signals

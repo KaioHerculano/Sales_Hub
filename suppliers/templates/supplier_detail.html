@@ -7,7 +7,9 @@
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title fw-bold">{{ object.name }}</h3>
-                <p class="card-text">{{ object.description }}</p>
+                {% if object.description %}
+                    <p class="card-text">Descrição: {{ object.description }}</p>
+                {% endif %}
             </div>
         </div>
         <a href="{% url 'supplier_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>

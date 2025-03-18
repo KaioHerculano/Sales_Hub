@@ -21,7 +21,7 @@ class Product(models.Model):
     title = models.CharField(max_length=300)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name='products')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='products')
-    quantity = models.IntegerField()
+    quantity = models.IntegerField(default=0)
     numbering = models.CharField(max_length=2, choices=NUMBERING_CHOICES, null=True, blank=True)
     serie_number = models.CharField(max_length=300)
     cost_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -35,22 +35,3 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class StockHistory(models.Model):
-    MOVEMENT_TYPES = [
-        ('in', 'Entrada'),
-        ('out', 'Saída'),
-    ]
-
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    movement_type = models.CharField(max_length=10, choices=MOVEMENT_TYPES, verbose_name='Tipo de Movimentação')
-    date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.get_movement_type_display()} de {self.quantity} unidades - {self.product.title}"
-
-class Meta:
-    verbose_name = 'Histórico de Estoque'
-    Verbose_name_plural = 'HIstóricos de Estoque'

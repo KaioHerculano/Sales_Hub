@@ -8,7 +8,7 @@ DIVA CALÇADOS - Movimentações de Estoque
 
 <div class="row mb-3">
     <div class="col-md-6">
-        <form method="get" action="{% url 'stock-history' %}">
+        <form method="get" action="{% url 'stock_moviment_list' %}">
             <div class="input-group">
                 <input type="text" class="form-control" name="product" placeholder="Filtrar por Produto" value="{{ request.get.product }}">
                 <button type="submit" class="btn btn-primary">
@@ -32,7 +32,7 @@ DIVA CALÇADOS - Movimentações de Estoque
             </tr>
         </thead>
         <tbody>
-            {% for entry in history_entries %}
+            {% for entry in moviment_entries %}
             <tr>
                 <td>{{ entry.product.id }}</td>
                 <td>

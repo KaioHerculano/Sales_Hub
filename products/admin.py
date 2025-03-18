@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, StockHistory
+from .models import Product 
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -7,9 +7,3 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('title', 'numbering', 'serie_number')
 
 admin.site.register(Product, ProductAdmin)
-
-@admin.register(StockHistory)
-class StockHistoryAdmin(admin.ModelAdmin):
-    list_display = ('product', 'quantity', 'movement_type', 'date')
-    list_filter = ('movement_type', 'date')
-    search_fields = ('product__title',)

@@ -6,12 +6,11 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = models.Product
-        fields = ['title', 'brand', 'category', 'quantity', 'numbering','serie_number', 'cost_price', 'selling_price', 'description',]
+        fields = ['title', 'brand', 'category', 'numbering','serie_number', 'cost_price', 'selling_price', 'description',]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'brand': forms.Select(attrs={'class': 'form-control'}),
             'category':forms.Select(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'numbering': forms.Select(attrs={'class': 'form-control'}),
             'serie_number': forms.TextInput(attrs={'class': 'form-control'}),
             'cost_price': forms.NumberInput(attrs={'class': 'form-control', 'data-mask': '000.000.000,00', 'data-mask-reverse': 'True'}),
@@ -23,7 +22,6 @@ class ProductForm(forms.ModelForm):
             'title': 'Titulo',
             'brand': 'Marca',
             'category': 'Categoria',
-            'quantity': 'Quantidade',
             'numbering': 'Numeração',
             'serie_number': 'Numero de Serie',
             'cost_price': 'Preço de Custo',
