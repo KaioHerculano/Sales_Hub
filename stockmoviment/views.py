@@ -17,7 +17,7 @@ class StockMovimentListView(ListView):
         if search_term:
             queryset = queryset.filter(
                 Q(product__title__icontains=search_term) |
-                Q(product__brand__name__icontains=search_term)
+                Q(product__serie_number__icontains=search_term)
             )
 
         return queryset.order_by('-date')

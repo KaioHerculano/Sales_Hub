@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from . import models, forms
+from app import metrics
 
 
 class ProductListView(ListView):
@@ -23,9 +24,13 @@ class ProductListView(ListView):
                 Q(serie_number__icontains=search_term)
             )
 
-
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context= super().get_context_data(**kwargs)
+        context['product_metrics'] = metrics.get_product_metrics()
 
+        return context
 
 
 class ProductCreateView(CreateView):

@@ -10,7 +10,7 @@ DIVA CALÇADOS - Movimentações de Estoque
     <div class="col-md-6">
         <form method="get" action="{% url 'stock_moviment_list' %}">
             <div class="input-group">
-                <input type="text" class="form-control" name="product" placeholder="Filtrar por Produto" value="{{ request.get.product }}">
+                <input type="text" class="form-control" name="product" placeholder="Filtrar por Produto/Numero de Série" value="{{ request.get.product }}">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search"></i>
                 </button>
