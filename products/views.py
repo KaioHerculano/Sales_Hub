@@ -76,7 +76,7 @@ class ProductDeleteView(DeleteView):
 
         if has_inflows or has_outflows:
             error_msg = (
-                f"Não foi possível excluir {self.object.title}. "
+                f"❌ Não foi possível excluir {self.object.title}. "
                 f"Estoque atual: {self.object.quantity} unidades."
             )
         
