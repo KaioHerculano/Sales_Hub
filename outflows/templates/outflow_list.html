@@ -17,14 +17,18 @@ DIVA CALÇADOS - Saídas
             </div>
         </form>
     </div>
-    <div class="col-md-6">
-        <a href="{% url 'outflow_create' %}" class="btn btn-success float-end">
-            <i>NOVA SAIDA</i>
-        </a>
-    </div>
+    {% if perms.outflows.add_outflow %}
+        <div class="col-md-6">
+            <a href="{% url 'outflow_create' %}" class="btn btn-success float-end">
+                <i>NOVA SAIDA</i>
+            </a>
+        </div>
+    {% endif %}
 </div>
 
-{% include 'components/_sales_metrics.html' %}
+{% if perms.outflows.view_outflow %}
+    {% include 'components/_sales_metrics.html' %}
+{% endif %}
 <div class="mt-4"></div>
 
 <div class="table-responsive">

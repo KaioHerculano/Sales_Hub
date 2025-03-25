@@ -17,11 +17,13 @@ DIVA CALÇADOS - Entradas
             </div>
         </form>
     </div>
-    <div class="col-md-6">
-        <a href="{% url 'inflow_create' %}" class="btn btn-success float-end">
-            <i>NOVA ENTRADA</i>
-        </a>
-    </div>
+    {% if perms.inflows.add_inflow %}
+        <div class="col-md-6">
+            <a href="{% url 'inflow_create' %}" class="btn btn-success float-end">
+                <i>NOVA ENTRADA</i>
+            </a>
+        </div>
+    {% endif %}
 </div>
 
 <div class="table-responsive">

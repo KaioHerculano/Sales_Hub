@@ -26,6 +26,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+#CSRF_TRUSTED_ORIGINS = [
+#    'https://cf2c-45-174-193-217.ngrok-free.app',
+#]
+
+# Apenas para desenvolvimento (não use em produção):
+#SESSION_COOKIE_SECURE = False
+#CSRF_COOKIE_SECURE = False
 
 # Application definition
 
@@ -39,6 +46,7 @@ INSTALLED_APPS = [
 
     'brands',
     'categories',
+    'clients',
     'inflows',
     'outflows',
     'products',
@@ -47,8 +55,9 @@ INSTALLED_APPS = [
 ]
 
 LOGIN_URL = 'login'
-
 LOGIN_REDIRECT_URL ='/'
+
+LOGOUT_REDIRECT_URL = '/login/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

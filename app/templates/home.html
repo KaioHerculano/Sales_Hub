@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 
-
-
 {% block content %}
 
 {% block title %}
 DIVA CALÇADOS - Dashboards
 {% endblock %}
 
-{% include 'components/_product_metrics.html' %}
-{% include 'components/_sales_metrics.html' %}
+{% if perms.products.view_product and perms.inflows.view_inflow %}
+    {% include 'components/_product_metrics.html' %}
+{% endif %}
 
+{% if perms.outflows.view_outflow %}
+    {% include 'components/_sales_metrics.html' %}
+{% endif %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="row mt-4 justify-content-center">
@@ -82,7 +84,7 @@ DIVA CALÇADOS - Dashboards
         <div class="col-md-6 text-center">
             <h5 clas="mb-3">Produtos por Categoria</h5>
             <div class="mb-4"></div>
-            <div class="embed-responsive embed-responsive-1by1" style="width: 400px; display: inline-block;">
+            <div class="embed-responsive embed-responsive-1by1" style="width: 300px; display: inline-block;">
                 <canvas id="productByCategoryChart" class="embed-responsive-item"></canvas>
             </div>
         </div>
@@ -90,7 +92,7 @@ DIVA CALÇADOS - Dashboards
         <div class="col-md-6 text-center">
             <h5 clas="mb-3">Produtos por Marca</h5>
             <div class="mb-4"></div>
-            <div style="width: 400px; display: inline-block;">
+            <div style="width: 300px; display: inline-block;">
                 <canvas id="productByBrandChart" class="embed-responsive-item"></canvas>
             </div>
         </div>
