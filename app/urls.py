@@ -13,9 +13,11 @@ urlpatterns = [
 
     path('', include('brands.urls')),
     path('', include('categories.urls')),
+    path('', include('clients.urls')),
     path('', include('suppliers.urls')),
     path('', include('inflows.urls')),
     path('', include('outflows.urls')),
     path('', include('products.urls')),
     path('', include('stockmoviment.urls')),
+    path('', include('sales.urls')),
 ]

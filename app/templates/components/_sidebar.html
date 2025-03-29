@@ -18,6 +18,10 @@
           <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'category_list' %}"><i class="bi bi-tags me-2"></i> Categorias</a>
         {% endif %}
 
+        {% if perms.clients.view_client %}
+          <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'client_list' %}"><i class="bi bi-people me-2"></i> Clientes</a>
+        {% endif %}
+
         {% if perms.products.view_product %}
           <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'product_list' %}"><i class="bi bi-box-seam me-2"></i> Produtos</a>
         {% endif %}
@@ -27,8 +31,10 @@
         {% endif %}
 
         {% if perms.outflows.view_outflow %}
-          <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'outflow_list' %}"><i class="bi bi-arrow-up-right-square me-2"></i> Saídas</a>
+          <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'outflow_list' %}"><i class="bi bi-arrow-up-right-square me-2"></i> Saidas</a>
         {% endif %}
+
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'sale_list' %}"><i class="bi bi-cart me-2"></i> Vendas</a>
         
         {% if perms.stockmoviment.view_stockmoviment %}
           <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'stock_moviment_list' %}"><i class="bi bi-arrow-down-up me-2"></i> Movimentações</a>

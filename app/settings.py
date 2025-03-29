@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework',
+    'widget_tweaks',
+
     'brands',
     'categories',
     'clients',
@@ -51,6 +54,7 @@ INSTALLED_APPS = [
     'outflows',
     'products',
     'suppliers',
+    'sales',
     'stockmoviment',
 ]
 

@@ -5,6 +5,7 @@ from brands.models import Brand
 from categories.models import Category
 from products.models import Product
 from outflows.models import Outflow
+from sales.models import Sale
 
 
 def get_product_metrics():
@@ -22,19 +23,28 @@ def get_product_metrics():
     )
 
 def get_sales_metrics():
-    total_sales = Outflow.objects.count()
-    total_products_sold = Outflow.objects.aggregate(
-        total_products_sold=Sum('quantity')
-    )['total_products_sold'] or 0
-    total_sales_value = sum(outflow.quantity * outflow.product.selling_price for outflow in Outflow.objects.all())
-    total_sales_cost = sum(outflow.quantity * outflow.product.cost_price for outflow in Outflow.objects.all() )
-    total_sales_profit = total_sales_value - total_sales_cost
+    total_sales = Sale.objects.count()
+    total_sales_value = 0
+    total_sales_profit = 0
+    total_products_sold = 0  # total de produtos vendidos
+
+    for sale in Sale.objects.all():
+        # sale.total deve conter o total da venda já calculado (após desconto)
+        total_sales_value += sale.total
+
+        # Calcular o custo total para essa venda usando os itens (campo 'quantidade' e o cost_price do produto)
+        sale_cost = sum(item.quantity * item.product.cost_price for item in sale.items.all())
+        sale_profit = sale.total - sale_cost
+        total_sales_profit += sale_profit
+
+        # Soma a quantidade total de produtos vendidos nesta venda
+        total_products_sold += sum(item.quantity for item in sale.items.all())
 
     return dict(
-        total_sales = total_sales,
-        total_products_sold = total_products_sold,
-        total_sales_value = number_format(total_sales_value, decimal_pos=2, force_grouping=True),
-        total_sales_profit = number_format(total_sales_profit, decimal_pos=2, force_grouping=True),
+        total_sales=total_sales,
+        total_sales_value=number_format(total_sales_value, decimal_pos=2, force_grouping=True),
+        total_sales_profit=number_format(total_sales_profit, decimal_pos=2, force_grouping=True),
+        total_products_sold=total_products_sold,
     )
 
 def get_daily_sales_data():

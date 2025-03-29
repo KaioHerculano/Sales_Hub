@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container mt-4">
+        <h3 class="display-6 fw-bold">Detalhes do Cliente</h3>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title fw-bold">{{ object.name }}</h3>
+                <p class="card-text">Data de Nascimento: {{ object.date_of_birth }}</p>
+                <p class="card-text">Endereço: {{ object.address }}</p>
+                <p class="card-text">Bairro: <strong>{{ object.neighborhood }}</strong></p>
+                <p class="card-text">Complemento: <strong>{{ object.complement }}</strong></p>
+                <p class="card-text">Telefone: <strong> {{ object.telephone }}</strong></p>
+                <p class="card-text">Email: <strong> {{ object.email }}</strong></p>
+                <p class="card-text">CPF: <strong>{{ object.cpf }}</strong></p>
+                <p class="card-text">RG: {{ object.rg }}</p>
+            </div>
+        </div>
+        <a href="{% url 'client_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>
+    </div>
+
+{% endblock %}
