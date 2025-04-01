@@ -11,6 +11,7 @@
       <p><strong>Data:</strong> {{ sale.sale_date|date:"d/m/Y H:i" }}</p>
       <p><strong>Cliente:</strong> {{ sale.client }}</p>
       <p><strong>Caixa:</strong> {{ sale.cashier }}</p>
+      <p><strong>Método de Pagamento:</strong> {{ sale.get_payment_method_display }}</p>
       <p><strong>Desconto:</strong> {{ sale.discount }}%</p>
       <p><strong>Total:</strong> R$ {{ sale.total }}</p>
     </div>

@@ -5,10 +5,12 @@ from .models import Sale, SaleItem
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
-        fields = ['client', 'discount',]
+        fields = ['client', 'discount', 'seller', 'payment_method']
         widgets = {
-            'discount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Desconto em %', 'min': '0', 'max': '100'}),
+            'discount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Discount (%)', 'min': '0', 'max': '100'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
+            'seller': forms.Select(attrs={'class': 'form-control'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control'}),
         }
 
 SaleItemFormSet = inlineformset_factory(
@@ -22,5 +24,3 @@ SaleItemFormSet = inlineformset_factory(
         'unit_price': forms.NumberInput(attrs={'class': 'form-control'}),
     }
 )
-
-

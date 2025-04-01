@@ -6,12 +6,34 @@ from django.conf import settings
 from products.models import Product  
 from clients.models import Client  
 
+
+class Seller(models.Model):
+    name = models.CharField("Seller Name", max_length=255)
+
+    def __str__(self):
+        return self.name
+
+class PaymentMethod(models.Model):
+    name = models.CharField("Payment Method", max_length=255)
+
+    def __str__(self):
+        return self.name
+
+PAYMENT_METHOD_CHOICES = [
+    ('cash', 'Dinheiro'),
+    ('card', 'Cartão'),
+    ('pix', 'Pix'),
+    ('boleto', 'Boleto'),
+]
+
 class Sale(models.Model):
     sale_date = models.DateTimeField("Sale Date", auto_now_add=True)
     total = models.DecimalField("Sale Total", max_digits=10, decimal_places=2, default=Decimal("0.00"))
     discount = models.DecimalField("Discount (%)", max_digits=5, decimal_places=2, default=Decimal("0.00"), validators=[MinValueValidator(Decimal("0.00")), MaxValueValidator(Decimal("100.00"))], help_text="Enter the discount percentage")
     client = models.ForeignKey(Client, verbose_name="Client", on_delete=models.SET_NULL, null=True, blank=True)
     cashier = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="Cashier", related_name="sales_as_cashier", on_delete=models.SET_NULL, null=True, blank=True)
+    seller = models.ForeignKey(User, verbose_name="Seller", on_delete=models.SET_NULL, null=True, blank=True)
+    payment_method = models.CharField("Payment Method", max_length=20, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
 
     class Meta:
         verbose_name = "Sale"

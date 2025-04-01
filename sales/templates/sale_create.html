@@ -5,27 +5,45 @@
   <h2 class="mt-4">Nova Venda</h2>
   <form method="post" novalidate>
     {% csrf_token %}
-
     
-    <div class="card mb-4">
-      <div class="card-header">
-        Dados da Venda
-      </div>
-      <div class="card-body">
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            {{ form.client.label_tag }} 
-            {{ form.client }}
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            Dados do Cliente e Vendedor
           </div>
-          <div class="form-group col-md-6">
-            {{ form.discount.label_tag }} 
-            {{ form.discount }}
+          <div class="card-body">
+            <div class="form-group">
+              <label for="{{ form.client.id_for_label }}">Cliente</label>
+              {{ form.client }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.seller.id_for_label }}">Vendedor</label>
+              {{ form.seller }}
+            </div>
           </div>
         </div>
       </div>
-
+      
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            Dados de Desconto e Pagamento
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="{{ form.discount.id_for_label }}">Desconto (%)</label>
+              {{ form.discount }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.payment_method.id_for_label }}">Forma de Pagamento</label>
+              {{ form.payment_method }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
+    
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>Itens da Venda</span>
@@ -51,7 +69,6 @@
               <td class="text-center">{{ form.DELETE }}</td>
             </tr>
             {% endfor %}
-
             <tr class="d-none" id="empty-item">
               <td>{{ items.empty_form.product }}</td>
               <td>{{ items.empty_form.quantity }}</td>
@@ -62,30 +79,27 @@
         </table>
       </div>
     </div>
-
+    
     <button type="submit" class="btn btn-success">Finalizar Venda</button>
   </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script type="text/javascript">
-  // Função para atualizar índices
   function updateFormIndices() {
     $('.item-row').each(function(i) {
       $(this).find('input, select').each(function() {
-        const name = $(this).attr('name').replace(/-\d+-/, '-'+i+'-');
+        const name = $(this).attr('name').replace(/-\d+-/, '-' + i + '-');
         $(this).attr('name', name);
-        const id = $(this).attr('id').replace(/-\d+-/, '-'+i+'-');
+        const id = $(this).attr('id').replace(/-\d+-/, '-' + i + '-');
         $(this).attr('id', id);
       });
     });
   }
-
-  // Adicionar novo item
+  
   $('#add-item').click(function() {
     const totalForms = $('#id_items-TOTAL_FORMS');
     const newIndex = parseInt(totalForms.val());
-    
     const newItem = $('#empty-item').clone(true)
       .removeClass('d-none')
       .addClass('item-row')
@@ -97,8 +111,7 @@
     totalForms.val(newIndex + 1);
     updateFormIndices();
   });
-
-  // Carregar preço do produto (mantido original)
+  
   $(document).on("change", "select[name$='-product']", function() {
     let selectField = $(this);
     let productId = selectField.val();
