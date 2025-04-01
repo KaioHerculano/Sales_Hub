@@ -5,7 +5,7 @@ from .models import Sale, SaleItem
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
-        fields = ['client', 'discount']
+        fields = ['client', 'discount',]
         widgets = {
             'discount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Desconto em %', 'min': '0', 'max': '100'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
@@ -22,3 +22,5 @@ SaleItemFormSet = inlineformset_factory(
         'unit_price': forms.NumberInput(attrs={'class': 'form-control'}),
     }
 )
+
+

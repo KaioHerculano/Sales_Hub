@@ -26,18 +26,15 @@ def get_sales_metrics():
     total_sales = Sale.objects.count()
     total_sales_value = 0
     total_sales_profit = 0
-    total_products_sold = 0  # total de produtos vendidos
+    total_products_sold = 0
 
     for sale in Sale.objects.all():
-        # sale.total deve conter o total da venda já calculado (após desconto)
         total_sales_value += sale.total
 
-        # Calcular o custo total para essa venda usando os itens (campo 'quantidade' e o cost_price do produto)
-        sale_cost = sum(item.quantity * item.product.cost_price for item in sale.items.all())
+        sale_cost = sum(item.quantity * item.purchase_price for item in sale.items.all())
         sale_profit = sale.total - sale_cost
         total_sales_profit += sale_profit
 
-        # Soma a quantidade total de produtos vendidos nesta venda
         total_products_sold += sum(item.quantity for item in sale.items.all())
 
     return dict(

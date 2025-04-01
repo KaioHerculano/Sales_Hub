@@ -2,7 +2,7 @@ from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from . import models, forms
+from . import models, forms, serializers
 
 
 class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -49,3 +49,13 @@ class ClientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     template_name = 'client_delete.html'
     success_url = reverse_lazy('client_list')
     permission_required = 'clients.delete_client'
+
+
+class ClientCreateListAPIView(generics.ListCreateAPIView):
+    queryset = models.Client.objects.all()
+    serializer_class = serializers.ClientSerializer
+
+
+class ClientRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Client.objects.all()
+    serializer_class = serializers.ClientSerializer
