@@ -4,7 +4,7 @@ from . import models
 
 class OutflowAdmin(admin.ModelAdmin):
     list_display = ('product', 'quantity', 'created_at', 'updated_at',)
-    search_fields = ('product__name', 'numbering', 'product__title',)
+    search_fields = ('product__name', 'product__title',)
 
 
 admin.site.register(models.Outflow, OutflowAdmin)

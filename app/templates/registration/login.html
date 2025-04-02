@@ -4,43 +4,103 @@
 {% block content %}
 
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                <h5 class="card-title text-center mb-4">Login</h5>
-                <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="username" class="form-label">Usuário</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Entrar</button>
-                </div>
-                </form>
-                {% if form.errors %}
-                <div class="alert alert-danger mt-4">
-                    <ul class="mb-0">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card border-0 shadow-lg rounded-3 overflow-hidden bg-body-secondary">
+        <div class="card-header p-4 bg-primary bg-gradient text-white">
+          <h2 class="fw-bold mb-0 text-center">Bem-vindo</h2>
+          <p class="text-center mb-0">Faça login para continuar</p>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-4">
+              <label for="username" class="form-label">Usuário</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="bi bi-person"></i>
+                </span>
+                <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="username"
+                  name="username" placeholder="Digite seu usuário" required>
+              </div>
+              {% if form.username.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in form.username.errors %}
+                <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label">Senha</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="bi bi-unlock"></i>
+                </span>
+                <input type="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                  id="password" name="password" placeholder="Digite sua senha" required>
+              </div>
+              {% if form.password.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in form.password.errors %}
+                <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="d-grid mb-4">
+              <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-2 text-uppercase">
+                Entrar
+                <i class="bi bi-box-arrow-in-right ms-2"></i>
+              </button>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger mt-4 animate__animated animate__shakeX">
+              <ul class="mb-0 list-unstyled">
+                {% for error in form.non_field_errors %}
+                <li><i class="bi bi-exclamation-circle me-2"></i>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+          </form>
         </div>
       </div>
     </div>
-</div>  
+  </div>
+</div>
+
+<style>
+  [data-bs-theme="dark"] .card {
+    background: var(--bs-dark-bg-subtle) !important;
+    border: 1px solid var(--bs-border-color);
+  }
+
+  [data-bs-theme="dark"] .form-control {
+    background-color: var(--bs-dark-bg-subtle);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+  }
+
+  [data-bs-theme="dark"] .input-group-text {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
+  }
+
+  .invalid-feedback {
+    color: #dc3545;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+  }
+
+  [data-bs-theme="dark"] .invalid-feedback {
+    color: #ff8080;
+  }
+</style>
 
 {% endblock %}

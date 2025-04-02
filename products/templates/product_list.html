@@ -10,7 +10,7 @@ SALES HUB - Produtos
     <div class="col-md-6">
         <form method="get" action="{% url 'product_list' %}">
             <div class="input-group">
-                <input type="text" class="form-control" name="product" placeholder="Produto/Marca/Numeração/Numero de Série" value="{{ request.get.product }}">
+                <input type="text" class="form-control" name="product" placeholder="Produto/Marca/Numero de Série" value="{{ request.get.product }}">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search"></i>
                 </button>
@@ -20,7 +20,7 @@ SALES HUB - Produtos
     {% if perms.products.add_product %}
         <div class="col-md-6">
             <a href="{% url 'product_create' %}" class="btn btn-success float-end">
-                <i>NOVA PRODUTO</i>
+                <i>NOVO PRODUTO</i>
             </a>
         </div>
     {% endif %}
@@ -39,7 +39,6 @@ SALES HUB - Produtos
                 <th>Produto</th>
                 <th>Marca</th>
                 <th>Categoria</th>
-                <th>Numeração</th>
                 <th>Numero de Serie</th>
                 <th>Preço de Custo</th>
                 <th>Preço de Venda</th>
@@ -54,7 +53,6 @@ SALES HUB - Produtos
                 <td>{{ product.title }}</td>
                 <td>{{ product.brand }}</td>
                 <td>{{ product.category }}</td>
-                <td>{{ product.numbering }}</td>
                 <td>{{ product.serie_number }}</td>
                 <td>{{ product.cost_price }}</td>
                 <td>{{ product.selling_price }}</td>

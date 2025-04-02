@@ -6,17 +6,15 @@ from . import models
 class OutflowForm(forms.ModelForm):
     class Meta:
         model = models.Outflow
-        fields = ['product', 'numbering', 'quantity', 'description']
+        fields = ['product', 'quantity', 'description']
         widgets = {
             'product': forms.Select(attrs={'class': 'form-control'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
-            'numbering': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
         labels = {
             'product': 'Produto',
-            'numbering': 'Numeração',
             'quantity': 'Quantidade',
             'description': 'Descrição',
         }

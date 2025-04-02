@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 import re
+from datetime import datetime
 
 
 def validate_phone(value):
@@ -34,14 +35,8 @@ def validate_cpf(value):
 
 def validate_rg(value):
     numbers = re.sub(r'\D', '', value)
-    if len(numbers) != 8:
-        raise ValidationError("RG deve conter 8 dígitos numéricos (ex: 12345670).")
-
-    digit_verifier = int(numbers[-1])
-    calculation = sum(int(num) * (i + 1) for i, num in enumerate(numbers[:7])) % 10
-
-    if digit_verifier != calculation:
-        raise ValidationError("Dígito verificador do RG inválido.")
+    if len(numbers) not in (7, 8):
+        raise ValidationError("RG deve conter 7 ou 8 dígitos numéricos (ex: 1234567 ou 12345678).")
 
 
 class Client(models.Model):
@@ -59,6 +54,12 @@ class Client(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def formatted_date_of_birth(self):
+        if self.date_of_birth:
+            return self.date_of_birth.strftime("%d/%m/%Y")
+        return ""
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -79,8 +80,11 @@ class Client(models.Model):
 
         if self.rg:
             numbers = re.sub(r'\D', '', self.rg)
-            if len(numbers) != 8:
-                raise ValidationError("RG inválido! Deve conter 8 dígitos.")
-            self.rg = f"{numbers[:7]}-{numbers[7:]}"
+            if len(numbers) not in (7, 8):
+                raise ValidationError("RG inválido! Deve conter 7 ou 8 dígitos.")
+            if len(numbers) == 8:
+                self.rg = f"{numbers[:7]}-{numbers[7:]}"
+            else:  # 7 dígitos
+                self.rg = f"{numbers[:6]}-{numbers[6:]}"
 
         super().save(*args, **kwargs)

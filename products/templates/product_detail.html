@@ -9,9 +9,6 @@
                 <h3 class="card-title">{{ object.title }}</h3>
                 <p class="card-text">Marca: {{ object.brand }}</p>
                 <p class="card-text">Categoria: {{ object.category }}</p>
-                {% if object.numbering %}
-                    <p class="card-text">Numeração: <strong>{{ object.numbering }}</strong></p>
-                {% endif %}
                 <p class="card-text">Número de Série: <strong>{{ object.serie_number }}</strong></p>
                 <p class="card-text">Preço de custo: <strong>R$ {{ object.cost_price }}</strong></p>
                 <p class="card-text">Preço de Venda: <strong>R$ {{ object.selling_price }}</strong></p>
