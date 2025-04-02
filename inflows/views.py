@@ -12,7 +12,6 @@ class InflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by = 8
     permission_required = 'inflows.view_inflow'
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
         product = self.request.GET.get('product')

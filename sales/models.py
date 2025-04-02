@@ -3,8 +3,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from decimal import Decimal
 from django.conf import settings
-from products.models import Product  
-from clients.models import Client  
+from products.models import Product
+from clients.models import Client
 
 
 class Seller(models.Model):
@@ -13,11 +13,13 @@ class Seller(models.Model):
     def __str__(self):
         return self.name
 
+
 class PaymentMethod(models.Model):
     name = models.CharField("Payment Method", max_length=255)
 
     def __str__(self):
         return self.name
+
 
 PAYMENT_METHOD_CHOICES = [
     ('cash', 'Dinheiro'),
@@ -25,6 +27,7 @@ PAYMENT_METHOD_CHOICES = [
     ('pix', 'Pix'),
     ('boleto', 'Boleto'),
 ]
+
 
 class Sale(models.Model):
     sale_date = models.DateTimeField("Sale Date", auto_now_add=True)

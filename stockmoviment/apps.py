@@ -6,4 +6,4 @@ class StockMovimentConfig(AppConfig):
     name = 'stockmoviment'
 
     def ready(self):
-        import stockmoviment.signals
+        import stockmoviment.signals    # noqa: F401

@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 
-urlpatterns=[
+urlpatterns = [
     path('stockmoviment/ist/', views.StockMovimentListView.as_view(), name='stock_moviment_list'),
 
     path('api/v1/stockmoviment/', views.StockMovimentCreateListAPIView.as_view(), name='stockmoviment-create-list-api-view'),

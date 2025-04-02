@@ -14,7 +14,6 @@ class SupplierListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by = 8
     permission_required = 'suppliers.view_supplier'
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
         name = self.request.GET.get('name')

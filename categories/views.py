@@ -14,7 +14,6 @@ class CategoryListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by = 8
     permission_required = 'categories.view_category'
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
         name = self.request.GET.get('name')

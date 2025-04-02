@@ -4,9 +4,10 @@ from outflows.models import Outflow
 from inflows.models import Inflow
 from .models import StockMoviment
 
+
 @receiver(post_save, sender=Inflow)
 def update_stock_on_inflow(sender, instance, created, **kwargs):
-    if created:  
+    if created:
         product = instance.product
         StockMoviment.objects.create(
             product=product,
@@ -14,9 +15,10 @@ def update_stock_on_inflow(sender, instance, created, **kwargs):
             movement_type='in'
         )
 
+
 @receiver(post_save, sender=Outflow)
 def update_stock_on_outflow(sender, instance, created, **kwargs):
-    if created:  
+    if created:
         product = instance.product
         StockMoviment.objects.create(
             product=product,

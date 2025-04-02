@@ -1,7 +1,7 @@
 from django.db import models
-from clients.models import Client
 from products.models import Product
 from django.contrib.auth.models import User
+
 
 class Outflow(models.Model):
     NUMBERING_CHOICES = [

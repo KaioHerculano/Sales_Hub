@@ -5,7 +5,6 @@ from django.db.models import Q
 from . import models, serializers
 
 
-
 class StockMovimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = models.StockMoviment
     template_name = 'stock_moviment_list.html'
@@ -19,8 +18,8 @@ class StockMovimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListVie
 
         if search_term:
             queryset = queryset.filter(
-                Q(product__title__icontains=search_term) |
-                Q(product__serie_number__icontains=search_term)
+                Q(product__title__icontains=search_term)
+                | Q(product__serie_number__icontains=search_term)
             )
 
         return queryset.order_by('-date')

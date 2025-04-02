@@ -2,6 +2,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from .models import Sale, SaleItem
 
+
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
@@ -12,6 +13,7 @@ class SaleForm(forms.ModelForm):
             'seller': forms.Select(attrs={'class': 'form-control'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
         }
+
 
 SaleItemFormSet = inlineformset_factory(
     Sale, SaleItem,

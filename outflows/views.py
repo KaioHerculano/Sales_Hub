@@ -37,7 +37,6 @@ class OutflowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
     permission_required = 'outflows.add_outflow'
 
 
-
 class OutflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = models.Outflow
     template_name = 'outflow_detail.html'

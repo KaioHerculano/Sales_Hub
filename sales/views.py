@@ -1,13 +1,14 @@
 from rest_framework import generics
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView
-from products.models import Product  
+from products.models import Product
 from outflows.models import Outflow
 from clients.models import Client
 from django.http import JsonResponse
 from django.views import View
 from decimal import Decimal
 from . import models, forms, serializers
+
 
 class GetProductPriceView(View):
     def get(self, request):
@@ -43,13 +44,13 @@ class SaleCreateView(CreateView):
         if items.is_valid():
             items.instance = self.object
             items.save()
-            
+
             subtotal = sum(item.unit_price * item.quantity for item in self.object.items.all())
             discount_factor = (Decimal("100.00") - self.object.discount) / Decimal("100.00")
             total = subtotal * discount_factor
             self.object.total = total.quantize(Decimal("0.01"))
             self.object.save(update_fields=["total"])
-            
+
             for item in self.object.items.all():
                 product = item.product
                 product.quantity -= item.quantity
@@ -63,7 +64,7 @@ class SaleCreateView(CreateView):
                 )
         return super().form_valid(form)
 
-    
+
 class SaleListView(ListView):
     model = models.Sale
     template_name = 'sale_list.html'
@@ -98,4 +99,3 @@ class SaleCreateListAPIView(generics.ListCreateAPIView):
 class SaleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Sale.objects.all()
     serializer_class = serializers.SaleSerializer
-

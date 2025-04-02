@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class StockMoviment(models.Model):
     MOVEMENT_TYPES = [
         ('in', 'Entrada'),

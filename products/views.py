@@ -21,16 +21,16 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
         if search_term:
             queryset = queryset.filter(
-                Q(title__icontains=search_term) |
-                Q(brand__name__icontains=search_term) |
-                Q(numbering__icontains=search_term) |
-                Q(serie_number__icontains=search_term)
+                Q(title__icontains=search_term)
+                | Q(brand__name__icontains=search_term)
+                | Q(numbering__icontains=search_term)
+                | Q(serie_number__icontains=search_term)
             )
 
         return queryset
-    
+
     def get_context_data(self, **kwargs):
-        context= super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['product_metrics'] = metrics.get_product_metrics()
 
         return context
@@ -73,7 +73,6 @@ class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
                 f"Não foi possível excluir {self.object.title}. "
                 f"Estoque atual: {self.object.quantity} unidades."
             )
-        
         try:
             has_inflows = self.object.inflow_set.exists()
             has_outflows = self.object.outflow_set.exists()
@@ -86,11 +85,9 @@ class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
                 f"❌ Não foi possível excluir {self.object.title}. "
                 f"Estoque atual: {self.object.quantity} unidades."
             )
-        
         if error_msg:
             messages.error(request, error_msg)
             return self.get(request, *args, **kwargs)
-        
         return super().post(request, *args, **kwargs)
 
 
