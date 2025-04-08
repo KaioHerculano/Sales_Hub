@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Detalhes do Pedido de Venda{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Detalhes do Pedido de Venda</h2>
+  
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Pedido #{{ order.id }}</h5>
+      <p><strong>Cliente:</strong> {{ order.client }}</p>
+      <p><strong>Data:</strong> {{ order.sale_date|date:"d/m/Y H:i" }}</p>
+      <p><strong>Desconto:</strong> {{ order.discount }}%</p>
+      <p><strong>Total:</strong> R$ {{ order.total }}</p>
+      <p><strong>Status:</strong> {{ order.get_order_status_display }}</p>
+      <p><strong>Vendedor:</strong> {{ order.seller }}</p>
+      <p><strong>Forma de Pagamento:</strong> {{ order.get_payment_method_display }}</p>
+    </div>
+  </div>
+
+  {% if order.items.all %}
+  <div class="card">
+    <div class="card-header">
+      Itens do Pedido
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Preço Unitário</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td>{{ item.product }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>R$ {{ item.unit_price }}</td>
+            <td>R$ {{ item.subtotal }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+  
+  <a href="{% url 'order_list' %}" class="btn btn-secondary mt-3">Voltar</a>
+</div>
+{% endblock %}

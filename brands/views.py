@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from django.urls import reverse_lazy
 from . import models, forms, serializers
+from django.http import HttpResponseRedirect
 
 
 class BrandListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -52,19 +53,17 @@ class BrandDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('brand_list')
     permission_required = 'brands.delete_brand'
 
-    def form_valid(self, form):
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
         try:
-
+            success_url = self.get_success_url()
             self.object.delete()
-            messages.success(self.request, "Marca excluída com sucesso!")
-            return super().form_valid(form)
+            return HttpResponseRedirect(success_url)
         except ProtectedError:
-
             messages.error(
-                self.request,
+                request,
                 "❌ Não é possível excluir. Há produtos vinculados a esta marca!"
             )
-
             return self.render_to_response(self.get_context_data())
 
 

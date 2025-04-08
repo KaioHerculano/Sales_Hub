@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Converter Orçamento para Pedido</h2>
+
+  <div class="card mb-4">
+    <div class="card-header">Detalhes do Orçamento</div>
+    <div class="card-body">
+      <p><strong>Cliente:</strong> {{ budget.client }}</p>
+      <p><strong>Validade:</strong> {{ budget.expiration_date }}</p>
+      <p><strong>Status:</strong> {{ budget.get_order_status_display }}</p>
+      <h5>Itens do Orçamento:</h5>
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Preço Unitário</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in budget.items.all %}
+          <tr>
+            <td>{{ item.product }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>R$ {{ item.unit_price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p><strong>Total:</strong> R$ {{ budget.total }}</p>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <p>Tem certeza de que deseja converter este orçamento em um pedido?</p>
+    <button type="submit" class="btn btn-success">Confirmar Conversão</button>
+    <a href="{% url 'budget_list' %}" class="btn btn-secondary">Cancelar e Voltar</a>
+  </form>
+</div>
+{% endblock %}

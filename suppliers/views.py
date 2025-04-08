@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from django.urls import reverse_lazy
 from . import models, forms, serializers
+from django.http import HttpResponseRedirect
 
 
 class SupplierListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -54,10 +55,9 @@ class SupplierDeleteView(LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         try:
-
+            success_url = self.get_success_url()
             self.object.delete()
-            messages.success(self.request, "Marca excluída com sucesso!")
-            return super().form_valid(form)
+            return HttpResponseRedirect(success_url)
         except ProtectedError:
 
             messages.error(

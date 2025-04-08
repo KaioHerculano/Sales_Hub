@@ -43,13 +43,27 @@
             class="bi bi-arrow-up-right-square me-2"></i> Saidas</a>
         {% endif %}
 
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'sale_list' %}"><i
-            class="bi bi-cart me-2"></i> Vendas</a>
-
         {% if perms.stockmoviment.view_stockmoviment %}
         <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'stock_moviment_list' %}"><i
             class="bi bi-arrow-down-up me-2"></i> Movimentações</a>
         {% endif %}
+
+        <div class="btn-group" role="group">
+          <button type="button" class="btn dropdown-toggle nav-link d-flex align-items-center fw-bold mx-2 py-2 "
+            data-bs-toggle="dropdown" aria-expanded="false"> V.P.O</button>
+          <ul class="dropdown-menu">
+
+            <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'sale_list' %}"><i
+                class="bi bi-cart me-2"></i> Vendas</a>
+
+            <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'order_list' %}"><i
+                class="bi bi-list-check me-2"></i> Pedido</a>
+
+            <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'budget_list' %}"><i
+                class="bi bi-journal-text me-2"></i> Orçamento</a>
+
+          </ul>
+        </div>
 
         <li class="nav-item">
           {% if user.is_authenticated %}

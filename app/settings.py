@@ -42,11 +42,13 @@ INSTALLED_APPS = [
 
     'authentication',
     'brands',
+    'budgets',
     'categories',
     'clients',
     'inflows',
     'outflows',
     'products',
+    'sale_order',
     'suppliers',
     'sales',
     'stockmoviment',

@@ -2,40 +2,39 @@
 
 {% block content %}
 <div class="container">
-  <h2 class="mt-4">Detalhes da Venda #{{ sale.id }}</h2>
+  <h2 class="mt-4">Detalhes do Orçamento #{{ object.pk }}</h2>
   <div class="card mb-4">
     <div class="card-header">
-      Informações da Venda
+      Informações do Orçamento
     </div>
     <div class="card-body">
-      <p><strong>Data:</strong> {{ sale.sale_date|date:"d/m/Y H:i" }}</p>
-      <p><strong>Status:</strong> {{ sale.get_order_status_display }}</p>
-      <p><strong>Cliente:</strong> {{ sale.client }}</p>
-      <p><strong>Vendedor:</strong> {{ sale.seller }}</p>
-      <p><strong>Forma de Pagamento:</strong> {{ sale.get_payment_method_display }}</p>
-      <p><strong>Desconto:</strong> {{ sale.discount }}%</p>
-      <p><strong>Total:</strong> R$ {{ sale.total }}</p>
+      <p><strong>Cliente:</strong> {{ object.client }}</p>
+      <p><strong>Vendedor:</strong> {{ object.seller }}</p>
+      <p><strong>Validade:</strong> {{ object.expiration_date|date:"d/m/Y" }}</p>
+      <p><strong>Status:</strong> {{ object.get_order_status_display }}</p>
+      <p><strong>Desconto (%):</strong> {{ budget.discount }}</p>
+      <p><strong>Total:</strong> R$ {{ object.total }}</p>
     </div>
   </div>
 
   <div class="card">
     <div class="card-header">
-      Itens da Venda
+      Itens do Orçamento
     </div>
     <div class="card-body">
-      {% if sale.items.all %}
+      {% if items %}
       <div class="table-responsive">
         <table class="table table-striped">
           <thead class="thead-dark">
             <tr>
-              <th>Produto (Código - Nome)</th>
+              <th>Produto</th>
               <th>Quantidade</th>
               <th>Preço Unitário</th>
               <th>Subtotal</th>
             </tr>
           </thead>
           <tbody>
-            {% for item in sale.items.all %}
+            {% for item in items %}
             <tr>
               <td>{{ item.product.title }}</td>
               <td>{{ item.quantity }}</td>
@@ -47,13 +46,13 @@
         </table>
       </div>
       {% else %}
-      <p>Nenhum item registrado para esta venda.</p>
+      <p>Nenhum item registrado para este orçamento.</p>
       {% endif %}
     </div>
   </div>
 
   <div class="mt-4">
-    <a href="{% url 'sale_list' %}" class="btn btn-secondary">Voltar para a Lista de Vendas</a>
+    <a href="{% url 'budget_list' %}" class="btn btn-secondary">Voltar</a>
   </div>
 </div>
 {% endblock %}

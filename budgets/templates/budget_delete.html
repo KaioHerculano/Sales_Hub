@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-4 text-body">Excluir Orçamento #{{ object.pk }}</h2>
+  <div class="card  mb-4">
+    <div class="card-header bg-body text-body">
+      Confirmação de Exclusão
+    </div>
+    <div class="card-body">
+      <p class="lead">Tem certeza de que deseja excluir o orçamento <strong>#{{ object.pk }}</strong>?</p>
+      <p>Esta ação não pode ser desfeita.</p>
+      <ul>
+        <li><strong>Cliente:</strong> {{ object.client }}</li>
+        <li><strong>Validade:</strong> {{ object.expiration_date|date:"d/m/Y" }}</li>
+        <li><strong>Status:</strong> {{ object.get_order_status_display }}</li>
+        <li><strong>Total:</strong> R$ {{ object.total }}</li>
+      </ul>
+      
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        <a href="{% url 'budget_list' %}" class="btn btn-secondary">Cancelar e Voltar</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

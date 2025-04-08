@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Editar Orçamento</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            Dados do Cliente e Vendedor
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="{{ form.client.id_for_label }}">Cliente</label>
+              {{ form.client }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.seller.id_for_label }}">Vendedor</label>
+              {{ form.seller }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            Dados de Desconto, Validade e Status
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="{{ form.discount.id_for_label }}">Desconto (%)</label>
+              {{ form.discount }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.expiration_date.id_for_label }}">Data de Validade</label>
+              {{ form.expiration_date }}
+            </div>
+            {% if form.order_status %}
+            <div class="form-group">
+              <label for="{{ form.order_status.id_for_label }}">Estado do Orçamento</label>
+              {{ form.order_status }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Itens do Orçamento</span>
+            <button type="button" class="btn btn-primary btn-sm" id="add-item">Adicionar Produto</button>
+          </div>
+      <div class="card-body">
+        {{ formset.management_form }}
+        <table class="table table-bordered">
+          <thead class="thead-light">
+            <tr>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Preço Unitário</th>
+              <th>Excluir?</th>
+            </tr>
+          </thead>
+          <tbody id="items-container">
+            {% for form in formset %}
+            {{ form.id }}
+            {{ form.sale }}
+            <tr class="item-row">
+              <td>{{ form.product }}</td>
+              <td>{{ form.quantity }}</td>
+              <td>{{ form.unit_price }}</td>
+              <td class="text-center">{{ form.DELETE }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="d-none" id="empty-item">
+              <td>{{ formset.empty_form.product }}</td>
+              <td>{{ formset.empty_form.quantity }}</td>
+              <td>{{ formset.empty_form.unit_price }}</td>
+              <td class="text-center">{{ formset.empty_form.DELETE }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <button type="submit" class="btn btn-success">Salvar Orçamento</button>
+    <a href="{% url 'budget_list' %}" class="btn btn-secondary">Cancelar e Voltar</a>
+  </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+  function updateFormIndices() {
+    $('.item-row').each(function(i) {
+      $(this).find('input, select').each(function() {
+        const name = $(this).attr('name').replace(/-\d+-/, '-' + i + '-');
+        $(this).attr('name', name);
+        const id = $(this).attr('id').replace(/-\d+-/, '-' + i + '-');
+        $(this).attr('id', id);
+      });
+    });
+  }
+  
+  $('#add-item').click(function() {
+    const totalForms = $('#id_items-TOTAL_FORMS');
+    const newIndex = parseInt(totalForms.val());
+    const newItem = $('#empty-item').clone(true)
+      .removeClass('d-none')
+      .addClass('item-row')
+      .html(function(i, html) {
+        return html.replace(/__prefix__/g, newIndex);
+      });
+    
+    $('#items-container').append(newItem);
+    totalForms.val(newIndex + 1);
+    updateFormIndices();
+  });
+  
+  $(document).on("change", "select[name$='-product']", function() {
+    let selectField = $(this);
+    let productId = selectField.val();
+    let priceInput = selectField.closest("tr").find("input[name$='-unit_price']");
+    if (productId) {
+      $.ajax({
+        url: "{% url 'get_product_price' %}",
+        data: { product_id: productId },
+        success: function(data) {
+          priceInput.val(data.price);
+        }
+      });
+    } else {
+      priceInput.val('');
+    }
+  });
+</script>
+{% endblock %}

@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('', views.home, name='home'),
     path('', include('brands.urls')),
+    path('', include('budgets.urls')),
     path('', include('categories.urls')),
     path('', include('clients.urls')),
     path('', include('suppliers.urls')),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('', include('products.urls')),
     path('', include('stockmoviment.urls')),
     path('', include('sales.urls')),
+    path('', include('sale_order.urls')),
 ]

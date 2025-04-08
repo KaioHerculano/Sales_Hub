@@ -1,4 +1,4 @@
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q
 from django.utils import timezone
 from django.utils.formats import number_format
 from brands.models import Brand
@@ -23,13 +23,18 @@ def get_product_metrics():
     )
 
 
+
 def get_sales_metrics():
-    total_sales = Sale.objects.count()
+    sales = Sale.objects.filter(
+        Q(sale_type__in=['quote', 'order']) &  # Aceita 'quote' ou 'order'
+        Q(order_status='finalized')  # Status obrigatório para ambos
+    )
+    total_sales = sales.count()
     total_sales_value = 0
     total_sales_profit = 0
     total_products_sold = 0
 
-    for sale in Sale.objects.all():
+    for sale in sales:
         total_sales_value += sale.total
 
         sale_cost = sum(item.quantity * item.purchase_price for item in sale.items.all())

@@ -33,11 +33,9 @@ SALES HUB - Vendas
     {% endif %}
 </div>
 
-{# Caso existam métricas que queiram ser exibidas, você pode incluir um bloco similar #}
-{# {% if perms.sales.view_sale and perms.inflows.view_inflow %} #}
-{#     {% include 'components/_sale_metrics.html' %} #}
-{# {% endif %} #}
-
+{% if perms.sales.view_sale %}
+    {% include 'components/_sales_metrics.html' %}
+{% endif %}
 <div class="mt-4"></div>
 
 <div class="table-responsive">
@@ -49,7 +47,7 @@ SALES HUB - Vendas
                 <th>Total</th>
                 <th>Desconto (%)</th>
                 <th>Cliente</th>
-                <th>Caixa</th>
+                <th>Vendedor</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -61,13 +59,16 @@ SALES HUB - Vendas
                 <td>R$ {{ sale.total }}</td>
                 <td>{{ sale.discount }}</td>
                 <td>{{ sale.client }}</td>
-                <td>{{ sale.cashier }}</td>
+                <td>{{ sale.seller }}</td>
                 <td>
                     {% if perms.sales.view_sale %}
                         <a href="{% url 'sale_detail' sale.id %}" class="btn btn-info btn-sm">
                             <i class="bi bi-eye"></i>
                         </a>
                     {% endif %}
+                    <a href="{% url 'sale_invoice' sale.id %}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </a>
                 </td>
             </tr>
             {% empty %}
