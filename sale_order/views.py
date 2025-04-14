@@ -88,7 +88,7 @@ class OrderPDFView(DetailView):
 
         p.setFont("Helvetica", 8)
         p.setFillColorRGB(0.5, 0.5, 0.5)
-        footer_text = "SALES HUB - Sistema de Gestão Comercial | Contato: (65) 9 9336-1717"
+        footer_text = "SALES HUB - Sistema de Gestão Comercial | Contato: (65) 9 9999-9999"
         p.drawCentredString(width / 2, 30, footer_text)
 
         p.showPage()

@@ -26,13 +26,7 @@ class SaleForm(forms.ModelForm):
         model = Sale
         fields = ['client', 'discount', 'seller', 'payment_method',]
         widgets = {
-            'discount': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Discount (%)', 
-                'min': '0', 
-                'max': '100',
-                'step': '0.01'
-            }),
+            'discount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Discount (%)', 'min': '0', 'max': '100','step': '0.01'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
             'seller': forms.Select(attrs={'class': 'form-control'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
@@ -45,13 +39,7 @@ class OrderUpdateForm(SaleForm):
         fields = ['client', 'discount', 'payment_method', 'seller', 'order_status', 'expiration_date']
         widgets = {
             'client': forms.Select(attrs={'class': 'form-control'}),
-            'discount': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Discount (%)', 
-                'min': '0', 
-                'max': '100',
-                'step': '0.01'
-            }),
+            'discount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Discount (%)', 'min': '0', 'max': '100','step': '0.01'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
             'seller': forms.Select(attrs={'class': 'form-control'}),
             'order_status': forms.Select(attrs={'class': 'form-control'}),

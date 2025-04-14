@@ -30,18 +30,15 @@ class BudgetPDFView(DetailView):
         p = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
         margin = 50
-        y = height - margin  # Posição Y inicial
+        y = height - margin
 
-        # Cabeçalho do sistema
         p.setFont("Helvetica-Bold", 20)
         p.setFillColorRGB(0.2, 0.5, 0.8)
         p.drawCentredString(width/2, y - 30, "SALES HUB")
         p.setFillColorRGB(0, 0, 0)
         
-        # Linha divisória do cabeçalho
         p.line(margin, y - 45, width - margin, y - 45)
         
-        # Informações do orçamento
         p.setFont("Helvetica-Bold", 16)
         p.drawString(margin, y - 80, f"ORÇAMENTO #{budget.id}")
         
@@ -50,7 +47,6 @@ class BudgetPDFView(DetailView):
         p.drawString(margin, y - 130, f"Data: {budget.sale_date.strftime('%d/%m/%Y')}")
         y -= 170
 
-        # Cabeçalho da tabela de itens
         p.setFont("Helvetica-Bold", 12)
         p.setFillColorRGB(0.9, 0.9, 0.9)
         p.rect(margin, y - 10, width - 2*margin, 25, fill=True, stroke=False)
@@ -73,7 +69,6 @@ class BudgetPDFView(DetailView):
             p.line(margin, y - 10, width - margin, y - 10)
             y -= 25
         
-        # Aplica o desconto, se houver
         discount = budget.discount or Decimal("0.00")
         discount_amount = total_geral * (discount / Decimal("100.00"))
         total_final = total_geral - discount_amount
@@ -93,7 +88,7 @@ class BudgetPDFView(DetailView):
         p.drawRightString(width - margin - 10, y, f"TOTAL GERAL: R$ {total_final:.2f}")
         p.setFont("Helvetica", 8)
         p.setFillColorRGB(0.5, 0.5, 0.5)
-        footer_text = "SALES HUB - Sistema de Gestão Comercial | Contato: (65) 9 9336-1717"
+        footer_text = "SALES HUB - Sistema de Gestão Comercial | Contato: (65) 9 9999-9999"
         p.drawCentredString(width/2, 30, footer_text)
         
         p.showPage()

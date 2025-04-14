@@ -8,23 +8,23 @@
 <div class="container mt-4">
   <div class="row mb-3">
     <div class="col-md-6">
-      <form method="get" action="{% url 'order_list' %}">
-        <div class="input-group">
-          <select class="form-control" name="client">
-            <option value="">Filtro por Cliente</option>
-            {% for client in clients %}
-              <option value="{{ client.id }}" {% if request.GET.client == client.id|stringformat:"s" %}selected{% endif %}>
-                {{ client }}
-              </option>
-            {% endfor %}
-          </select>
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
-      </form>
+        <form method="get" action="{% url 'order_list' %}">
+            <div class="input-group">
+                <select class="form-control" name="client">
+                    <option value="">Filtro por Cliente</option>
+                    {% for client in clients %}
+                        <option value="{{ client.id }}" {% if request.GET.client == client.id|stringformat:"s" %}selected{% endif %}>
+                            {{ client }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
     </div>
-    {% if perms.sales.add_sale %}
+    {% if perms.sale_order.add_sale_order %}
       <div class="col-md-6">
         <a href="{% url 'order_create' %}" class="btn btn-success float-end">
           <i></i> Novo Pedido de Venda
@@ -54,15 +54,22 @@
             <td>R$ {{ order.total }}</td>
             <td>{{ order.get_order_status_display }}</td>
             <td>
-              <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-info">
-                <i class="bi bi-eye"></i>
-              </a>
-              <a href="{% url 'order_update' order.id %}" class="btn btn-sm btn-warning">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <a href="{% url 'order_pdf' order.id %}" class="btn btn-danger btn-sm">
-                <i class="bi bi-file-earmark-pdf"></i>
-              </a>
+              {% if perms.sales.view_order %}
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-info">
+                  <i class="bi bi-eye"></i>
+                </a>
+              {% endif %}
+
+              {% if perms.sales.change_order %}
+                <a href="{% url 'order_update' order.id %}" class="btn btn-sm btn-warning">
+                  <i class="bi bi-pencil"></i>
+                </a>
+              {% endif %}
+              {% if perms.sales.view_order %}
+                <a href="{% url 'order_pdf' order.id %}" class="btn btn-danger btn-sm">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                </a>
+              {% endif %}
             </td>
           </tr>
         {% empty %}

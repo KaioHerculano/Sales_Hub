@@ -6,14 +6,18 @@ from categories.models import Category
 from products.models import Product
 from outflows.models import Outflow
 from sales.models import Sale
+from django.utils.timezone import now, timedelta
+from collections import defaultdict
+from decimal import Decimal
 
 
 def get_product_metrics():
-    products = Product.objects.all()
+    products = Product.objects.filter(quantity__gt=0)
     total_cost_price = sum(product.cost_price * product.quantity for product in products)
     total_selling_price = sum(product.selling_price * product.quantity for product in products)
     total_quantity = sum(product.quantity for product in products)
     total_profit = total_selling_price - total_cost_price
+
 
     return dict(
         total_cost_price=number_format(total_cost_price, decimal_pos=2, force_grouping=True),
@@ -26,8 +30,8 @@ def get_product_metrics():
 
 def get_sales_metrics():
     sales = Sale.objects.filter(
-        Q(sale_type__in=['quote', 'order']) &  # Aceita 'quote' ou 'order'
-        Q(order_status='finalized')  # Status obrigatório para ambos
+        Q(sale_type__in=['quote', 'order']) &
+        Q(order_status='finalized')
     )
     total_sales = sales.count()
     total_sales_value = 0
@@ -93,3 +97,51 @@ def get_product_count_by_category_metric():
 def get_graphic_product_brand_metric():
     brands = Brand.objects.all()
     return {brand.name: Product.objects.filter(brand=brand).count() for brand in brands}
+
+
+def get_sales_by_seller_metrics():
+    today = now().date()
+    start_of_month = today.replace(day=1)
+    sales = Sale.objects.filter(
+        sale_type__in=['quote', 'order'],
+        order_status='finalized',
+        sale_date__gte=start_of_month
+    )
+
+    value_by_seller = defaultdict(float)
+
+    for sale in sales:
+        if sale.seller:
+            seller_name = sale.seller.get_full_name() or sale.seller.username
+            value_by_seller[seller_name] += float(sale.total)
+
+    return {
+        'value_by_seller': value_by_seller
+    }
+
+def get_top_clients_last_month():
+    today = now().date()
+    last_month = today - timedelta(days=30)
+
+    sales = Sale.objects.filter(
+        sale_type__in=['quote', 'order'],
+        order_status='finalized',
+        sale_date__gte=last_month
+    )
+
+    clients_total = defaultdict(Decimal)
+
+    for sale in sales:
+        if sale.client:
+            client_name = str(sale.client)
+            try:
+                total_value = sale.total if isinstance(sale.total, Decimal) else Decimal(sale.total)
+                clients_total[client_name] += total_value
+            except (ValueError, TypeError) as e:
+                continue
+
+    sorted_clients = sorted(clients_total.items(), key=lambda x: x[1], reverse=True)[:3]
+    return {
+        'clients': [client for client, _ in sorted_clients],
+        'values': [float(value) for _, value in sorted_clients]
+    }

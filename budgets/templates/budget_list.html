@@ -10,11 +10,11 @@ SALES HUB - Orçamentos
     <div class="col-md-6">
         <form method="get" action="{% url 'budget_list' %}">
             <div class="input-group">
-                <select class="form-control" name="status">
-                    <option value="">Filtro por Status</option>
-                    {% for status_key, status_value in budget_status_choices %}
-                        <option value="{{ status_key }}" {% if request.GET.status == status_key %}selected{% endif %}>
-                            {{ status_value }}
+                <select class="form-control" name="client">
+                    <option value="">Filtro por Cliente</option>
+                    {% for client in clients %}
+                        <option value="{{ client.id }}" {% if request.GET.client == client.id|stringformat:"s" %}selected{% endif %}>
+                            {{ client }}
                         </option>
                     {% endfor %}
                 </select>
@@ -24,7 +24,7 @@ SALES HUB - Orçamentos
             </div>
         </form>
     </div>
-    {% if perms.budget.add_budget %}
+    {% if perms.sales.add_budget %}
         <div class="col-md-6">
             <a href="{% url 'budget_create' %}" class="btn btn-success float-end">
                 <i>NOVO ORÇAMENTO</i>
@@ -56,24 +56,34 @@ SALES HUB - Orçamentos
                 <td>{{ budget.get_order_status_display }}</td>
                 <td>R$ {{ budget.total }}</td>
                 <td>
-                    <a href="{% url 'budget_detail' budget.pk %}" class="btn btn-info btn-sm">
-                        <i class="bi bi-eye"></i>
-                    </a>
+                    {% if perms.sales.view_budget %}
+                        <a href="{% url 'budget_detail' budget.pk %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    {% endif %}
 
-                    <a href="{% url 'budget_update' budget.pk %}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil"></i>
-                    </a>
+                    {% if perms.sales.change_budget %}
+                        <a href="{% url 'budget_update' budget.pk %}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    {% endif %}
 
-                    <a href="{% url 'budget_delete' budget.pk %}" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                    <a href="{% url 'budget_pdf' budget.pk %}" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-file-earmark-pdf"></i>
-                    </a>
-                    {% if perms.budget.change_budget %}
-                    <a href="{% url 'budget_convert' budget.pk %}" class="btn btn-success btn-sm">
-                        <i class="bi bi-arrow-right">Converter PDV</i>
-                    </a>
+                    {% if perms.sales.delete_budget %}
+                        <a href="{% url 'budget_delete' budget.pk %}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    {% endif %}
+
+                    {% if perms.sales.view_budget %}
+                        <a href="{% url 'budget_pdf' budget.pk %}" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </a>
+                    {% endif %}
+
+                    {% if perms.sales.add_order %}
+                        <a href="{% url 'budget_convert' budget.pk %}" class="btn btn-success btn-sm">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
                     {% endif %}
                 </td>
             </tr>
