@@ -94,7 +94,7 @@ O **Sales Hub** é um sistema completo para gestão comercial desenvolvido em Dj
 ### Criar superusuário
 - **python [manage.py](http://_vscodecontentref_/2) createsuperuser**
 
-###Iniciar servidor
+### Iniciar servidor
 - **python [manage.py](http://_vscodecontentref_/3) runserver**
 
 ### Acessar sistema
