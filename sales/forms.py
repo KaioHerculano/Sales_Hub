@@ -57,5 +57,6 @@ class BudgetForm(OrderUpdateForm):
         super().__init__(*args, **kwargs)
         if 'order_status' in self.fields:
             self.fields['order_status'].choices = [
-                choice for choice in self.fields['order_status'].choices if choice[0] != 'finalized'
+                choice for choice in self.fields['order_status'].choices 
+                if choice[0] not in ['finalized', 'delivered', 'sent', 'waiting']
             ]

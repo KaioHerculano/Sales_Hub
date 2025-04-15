@@ -111,7 +111,7 @@ class SaleItem(models.Model):
         super().save(*args, **kwargs)
 
     def subtotal(self):
-        return self.quantity * self.unit_price
+        return (self.quantity or 0) * (self.unit_price or 0)
 
 
 class Order(Sale):
