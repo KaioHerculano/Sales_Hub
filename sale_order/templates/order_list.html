@@ -24,7 +24,7 @@
             </div>
         </form>
     </div>
-    {% if perms.sale_order.add_sale_order %}
+    {% if perms.sales.add_order %}
       <div class="col-md-6">
         <a href="{% url 'order_create' %}" class="btn btn-success float-end">
           <i></i> Novo Pedido de Venda
