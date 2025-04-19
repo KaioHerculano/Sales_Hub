@@ -33,26 +33,37 @@ def get_sales_metrics():
         Q(sale_type__in=['quote', 'order']) &
         Q(order_status='finalized')
     )
-    total_sales = sales.count()
-    total_sales_value = 0
-    total_sales_profit = 0
+    
+    outflows = Outflow.objects.exclude(
+        sale_reference__startswith='Venda '
+    )
+    
+    total_sales_count = sales.count()
+    total_sales_value = Decimal('0')
+    total_sales_profit = Decimal('0')
     total_products_sold = 0
-
+    
     for sale in sales:
         total_sales_value += sale.total
-
         sale_cost = sum(item.quantity * item.purchase_price for item in sale.items.all())
-        sale_profit = sale.total - sale_cost
-        total_sales_profit += sale_profit
-
+        total_sales_profit += sale.total - sale_cost
         total_products_sold += sum(item.quantity for item in sale.items.all())
-
-    return dict(
-        total_sales=total_sales,
-        total_sales_value=number_format(total_sales_value, decimal_pos=2, force_grouping=True),
-        total_sales_profit=number_format(total_sales_profit, decimal_pos=2, force_grouping=True),
-        total_products_sold=total_products_sold,
-    )
+    
+    for outflow in outflows:
+        outflow_value = outflow.product.selling_price * outflow.quantity
+        outflow_cost = outflow.product.cost_price * outflow.quantity
+        
+        total_sales_value += outflow_value
+        total_sales_profit += outflow_value - outflow_cost
+        total_products_sold += outflow.quantity
+    
+    return {
+        'total_sales': total_sales_count,
+        'total_outflows': outflows.count(),
+        'total_sales_value': number_format(total_sales_value, decimal_pos=2, force_grouping=True),
+        'total_sales_profit': number_format(total_sales_profit, decimal_pos=2, force_grouping=True),
+        'total_products_sold': total_products_sold,
+    }
 
 
 def get_daily_sales_data():
