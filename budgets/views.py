@@ -1,4 +1,5 @@
 from reportlab.lib.pagesizes import A4
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
@@ -9,18 +10,30 @@ from decimal import Decimal
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from io import BytesIO
+from django.core.exceptions import PermissionDenied
 
 
-class BudgetListView(ListView):
+class CompanyObjectMixin:
+    """Garante que objetos pertençam à company do usuário."""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request.user, 'profile'):
+            return queryset.filter(company=self.request.user.profile.company)
+        raise PermissionDenied("Usuário não associado a uma company.")
+
+
+class BudgetListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = Budget
     template_name = 'budget_list.html'
     context_object_name = 'budgets'
+    permission_required = 'sales.view_budget'
 
     def get_queryset(self):
-        return Budget.objects.exclude(order_status__in=['converted', 'finalized'])
+        return Budget.objects.exclude(order_status__in=['converted', 'finalized']).filter(company=self.request.user.profile.company)
 
-class BudgetPDFView(DetailView):
+class BudgetPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = Budget
+    permission_required = 'sales.view_budget'
     
     def get(self, request, *args, **kwargs):
         budget = self.get_object()
@@ -102,30 +115,41 @@ class BudgetPDFView(DetailView):
         return response
 
 
-class BudgetDetailView(DetailView):
+class BudgetDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = Budget
     template_name = 'budget_detail.html'
+    permission_required = 'sales.view_budget'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['items'] = self.object.items.all()
         return context
 
-class BudgetCreateView(CreateView):
+class BudgetCreateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, CreateView):
     model = Budget
     form_class = forms.BudgetForm
     template_name = 'budget_create.html'
     success_url = reverse_lazy('budget_list')
+    permission_required = 'sales.add_budget'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['formset'] = forms.SaleItemFormSet(self.request.POST, instance=self.object)
+            context['formset'] = forms.SaleItemFormSet(self.request.POST, instance=self.object, user=self.request.user)
         else:
-            context['formset'] = forms.SaleItemFormSet(instance=self.object)
+            context['formset'] = forms.SaleItemFormSet(instance=self.object, user=self.request.user)
         return context
     
     def form_valid(self, form):
+        form.instance.company = self.request.user.profile.company
         context = self.get_context_data()
         formset = context['formset']
         form.instance.sale_type = 'quote'
@@ -139,19 +163,28 @@ class BudgetCreateView(CreateView):
         
         return super().form_invalid(form)
 
-class BudgetUpdateView(UpdateView):
+class BudgetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = Budget
     form_class = forms.BudgetForm
     template_name = 'budget_update.html'
     success_url = reverse_lazy('budget_list')
+    permission_required = 'sales.change_budget'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         if self.request.POST:
-            context['formset'] = forms.SaleItemFormSet(self.request.POST, instance=self.object)
+            context['formset'] = forms.SaleItemFormSet(self.request.POST, instance=self.object, user=self.request.user)
         else:
-            context['formset'] = forms.SaleItemFormSet(instance=self.object)
+            context['formset'] = forms.SaleItemFormSet(instance=self.object, user=self.request.user)
 
         return context
 
@@ -168,12 +201,20 @@ class BudgetUpdateView(UpdateView):
 
         return self.form_invalid(form)
 
-class BudgetDeleteView(DeleteView):
+class BudgetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
     model = Budget
     template_name = 'budget_delete.html'
     success_url = reverse_lazy('budget_list')
+    permission_required = 'sales.delete_budget'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 class ConvertToOrderView(View):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
+    
     def get(self, request, pk):
         budget = get_object_or_404(Budget, pk=pk)
         return render(request, 'budget_convert.html', {'budget': budget})

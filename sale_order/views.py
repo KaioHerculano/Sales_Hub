@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.http import HttpResponseRedirect
@@ -10,10 +10,24 @@ from io import BytesIO
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
+from django.core.exceptions import PermissionDenied
 
 
-class OrderPDFView(DetailView):
+class CompanyObjectMixin:
+    """Garante que objetos pertençam à company do usuário."""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request.user, 'profile'):
+            return queryset.filter(company=self.request.user.profile.company)
+        raise PermissionDenied("Usuário não associado a uma company.")
+
+
+class OrderPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = Sale
+    permission_required = 'sales.view_order'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
@@ -102,30 +116,38 @@ class OrderPDFView(DetailView):
         return response
 
 
-class OrderListView(LoginRequiredMixin, ListView):
+class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = Sale
     template_name = 'order_list.html'
     context_object_name = 'orders'
     paginate_by = 8
+    permission_required = 'sales.view_order'
     
     def get_queryset(self):
-        return Sale.objects.filter(sale_type='order').exclude(order_status='finalized')
+        return Sale.objects.filter(sale_type='order').exclude(order_status='finalized').filter(company=self.request.user.profile.company)
 
 class OrderCreateView(LoginRequiredMixin, CreateView):
     model = Sale
     form_class = forms.OrderUpdateForm
     template_name = 'order_create.html'
     success_url = reverse_lazy('order_list')
+    permission_required = 'sales.add_order'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['items'] = forms.SaleItemFormSet(self.request.POST, prefix="items")
+            context['items'] = forms.SaleItemFormSet(self.request.POST, prefix="items", user=self.request.user)
         else:
-            context['items'] = forms.SaleItemFormSet(prefix="items")
+            context['items'] = forms.SaleItemFormSet(prefix="items", user=self.request.user)
         return context
     
     def form_valid(self, form):
+        form.instance.company = self.request.user.profile.company
         context = self.get_context_data()
         items = context['items']
         for f in items.forms:
@@ -157,6 +179,7 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
                     Outflow.objects.create(
                         product=product,
                         quantity=item.quantity,
+                        company=self.request.user.profile.company,
                         sale_reference=f"Venda {self.object.id}",
                         description=f"Venda realizada no PDV (Venda {self.object.id}). Preço unitário com desconto: R$ {discounted_unit_price}"
                     )
@@ -167,17 +190,30 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
             return self.form_invalid(form)
 
 
-class OrderDetailView(LoginRequiredMixin, DetailView):
+class OrderDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = Sale
     template_name = 'order_detail.html'
     context_object_name = 'order'
+    permission_required = 'sales.view_order'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 
-class OrderUpdateView(LoginRequiredMixin, UpdateView):
+class OrderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = Sale
     form_class = forms.OrderUpdateForm
     template_name = 'order_update.html'
     success_url = reverse_lazy('order_list')
+    permission_required = 'sales.change_order'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
     
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
@@ -218,6 +254,7 @@ class OrderUpdateView(LoginRequiredMixin, UpdateView):
                     Outflow.objects.create(
                         product=product,
                         quantity=item.quantity,
+                        company=self.request.user.profile.company,
                         sale_reference=f"Venda {self.object.id}",
                         description=f"Venda realizada no PDV (Venda {self.object.id}). Preço unitário com desconto: R$ {discounted_unit_price}"
                     )

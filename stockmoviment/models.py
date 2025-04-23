@@ -1,4 +1,5 @@
 from django.db import models
+from companies.models import Company
 
 
 class StockMoviment(models.Model):
@@ -7,6 +8,7 @@ class StockMoviment(models.Model):
         ('out', 'Saída'),
     ]
 
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     quantity = models.IntegerField()
     movement_type = models.CharField(max_length=10, choices=MOVEMENT_TYPES, verbose_name='Tipo de Movimentação')

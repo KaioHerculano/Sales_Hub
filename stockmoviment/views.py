@@ -3,9 +3,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.views.generic import ListView
 from django.db.models import Q
 from . import models, serializers
+from django.core.exceptions import PermissionDenied
 
 
-class StockMovimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class CompanyObjectMixin:
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request.user, 'profile'):
+            return queryset.filter(company=self.request.user.profile.company)
+        raise PermissionDenied("Usuário não associado a uma company.")
+
+
+class StockMovimentListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = models.StockMoviment
     template_name = 'stock_moviment_list.html'
     context_object_name = 'moviment_entries'
@@ -13,7 +23,7 @@ class StockMovimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListVie
     permission_required = 'stockmoviment.view_stockmoviment'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(company=self.request.user.profile.company)
         search_term = self.request.GET.get('product')
 
         if search_term:
@@ -29,7 +39,16 @@ class StockMovimentCreateListAPIView(generics.ListCreateAPIView):
     queryset = models.StockMoviment.objects.all()
     serializer_class = serializers.StockMovimentSerializer
 
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
+
+    def perform_create(self, serializer):
+        serializer.save(company=self.request.user.profile.company)
+
 
 class StockMovimentRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.StockMoviment.objects.all()
     serializer_class = serializers.StockMovimentSerializer
+
+    def get_queryset(self):
+        return models.Brand.objects.filter(company=self.request.user.profile.company)

@@ -1,10 +1,11 @@
 from django.db import models
+from companies.models import Company
 from products.models import Product
 from django.contrib.auth.models import User
 
 
 class Outflow(models.Model):
-
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='outflows', verbose_name="Produto")
     quantity = models.PositiveIntegerField("Quantidade")
     sale_reference = models.CharField("Referência da Venda", max_length=100, blank=True, null=True)

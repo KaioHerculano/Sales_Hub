@@ -1,8 +1,7 @@
+import re
 from django.db import models
 from django.core.exceptions import ValidationError
-import re
-from datetime import datetime
-
+from companies.models import Company
 
 def validate_phone(value):
     numbers = re.sub(r'\D', '', value)
@@ -40,6 +39,7 @@ def validate_rg(value):
 
 
 class Client(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     date_of_birth = models.DateField(blank=True, null=True)
     address = models.CharField(max_length=200, blank=True, null=True)

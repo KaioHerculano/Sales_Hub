@@ -1,7 +1,9 @@
 from django.db import models
+from companies.models import Company
 
 
 class Brand(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=300)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

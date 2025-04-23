@@ -11,13 +11,12 @@ from collections import defaultdict
 from decimal import Decimal
 
 
-def get_product_metrics():
-    products = Product.objects.filter(quantity__gt=0)
+def get_product_metrics(company):
+    products = Product.objects.filter(company=company, quantity__gt=0)
     total_cost_price = sum(product.cost_price * product.quantity for product in products)
     total_selling_price = sum(product.selling_price * product.quantity for product in products)
     total_quantity = sum(product.quantity for product in products)
     total_profit = total_selling_price - total_cost_price
-
 
     return dict(
         total_cost_price=number_format(total_cost_price, decimal_pos=2, force_grouping=True),
@@ -26,15 +25,14 @@ def get_product_metrics():
         total_profit=number_format(total_profit, decimal_pos=2, force_grouping=True),
     )
 
-
-
-def get_sales_metrics():
+def get_sales_metrics(company):
     sales = Sale.objects.filter(
         Q(sale_type__in=['quote', 'order']) &
-        Q(order_status='finalized')
+        Q(order_status='finalized') &
+        Q(company=company)
     )
     
-    outflows = Outflow.objects.exclude(
+    outflows = Outflow.objects.filter(company=company).exclude(
         sale_reference__startswith='Venda '
     )
     
@@ -65,14 +63,14 @@ def get_sales_metrics():
         'total_products_sold': total_products_sold,
     }
 
-
-def get_daily_sales_data():
+def get_daily_sales_data(company):
     today = timezone.now().date()
     dates = [str(today - timezone.timedelta(days=i)) for i in range(6, -1, -1)]
     values = list()
 
     for date in dates:
         sales_total = Outflow.objects.filter(
+            company=company,
             created_at__date=date
         ).aggregate(
             total_sales=Sum(F('product__selling_price') * F('quantity'))
@@ -84,14 +82,16 @@ def get_daily_sales_data():
         values=values,
     )
 
-
-def get_daily_sales_quantity_data():
+def get_daily_sales_quantity_data(company):
     today = timezone.now().date()
     dates = [str(today - timezone.timedelta(days=i)) for i in range(6, -1, -1)]
     quantities = list()
 
     for date in dates:
-        sales_quantity = Outflow.objects.filter(created_at__date=date).count()
+        sales_quantity = Outflow.objects.filter(
+            company=company,
+            created_at__date=date
+        ).count()
         quantities.append(sales_quantity)
 
     return dict(
@@ -99,24 +99,22 @@ def get_daily_sales_quantity_data():
         values=quantities,
     )
 
-
-def get_product_count_by_category_metric():
+def get_product_count_by_category_metric(company):
     categories = Category.objects.all()
-    return {category.name: Product.objects.filter(category=category).count() for category in categories}
+    return {category.name: Product.objects.filter(category=category, company=company).count() for category in categories}
 
-
-def get_graphic_product_brand_metric():
+def get_graphic_product_brand_metric(company):
     brands = Brand.objects.all()
-    return {brand.name: Product.objects.filter(brand=brand).count() for brand in brands}
+    return {brand.name: Product.objects.filter(brand=brand, company=company).count() for brand in brands}
 
-
-def get_sales_by_seller_metrics():
+def get_sales_by_seller_metrics(company):
     today = now().date()
     start_of_month = today.replace(day=1)
     sales = Sale.objects.filter(
         sale_type__in=['quote', 'order'],
         order_status='finalized',
-        sale_date__gte=start_of_month
+        sale_date__gte=start_of_month,
+        company=company
     )
 
     value_by_seller = defaultdict(float)
@@ -130,14 +128,15 @@ def get_sales_by_seller_metrics():
         'value_by_seller': value_by_seller
     }
 
-def get_top_clients_last_month():
+def get_top_clients_last_month(company):
     today = now().date()
     last_month = today - timedelta(days=30)
 
     sales = Sale.objects.filter(
         sale_type__in=['quote', 'order'],
         order_status='finalized',
-        sale_date__gte=last_month
+        sale_date__gte=last_month,
+        company=company
     )
 
     clients_total = defaultdict(Decimal)

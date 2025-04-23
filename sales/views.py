@@ -2,6 +2,7 @@ from app import metrics
 from django.db.models import Q
 from rest_framework import generics
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView
 from products.models import Product
 from outflows.models import Outflow
@@ -17,9 +18,20 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from django.views.generic import DetailView
 from .models import Sale
+from django.core.exceptions import PermissionDenied
 
-class InvoicePDFView(DetailView):
+
+class CompanyObjectMixin:
+    """Garante que objetos pertençam à company do usuário."""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request.user, 'profile'):
+            return queryset.filter(company=self.request.user.profile.company)
+        raise PermissionDenied("Usuário não associado a uma company.")
+
+class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = Sale
+    permission_required = 'sales.view_sale'
 
     def get(self, request, *args, **kwargs):
         sale = self.get_object()
@@ -151,21 +163,28 @@ class GetProductPriceView(View):
             return JsonResponse({'price': ''})
 
 
-class SaleCreateView(CreateView):
-    model = models.Sale
+class SaleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, CreateView):
+    model = Sale
     form_class = forms.SaleForm
     template_name = 'sale_create.html'
     success_url = reverse_lazy('sale_list')
+    permission_required = 'sales.add_sale'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['items'] = forms.SaleItemFormSet(self.request.POST)
+            context['items'] = forms.SaleItemFormSet(self.request.POST, user=self.request.user)
         else:
-            context['items'] = forms.SaleItemFormSet()
+            context['items'] = forms.SaleItemFormSet(user=self.request.user)
         return context
 
     def form_valid(self, form):
+        form.instance.company = self.request.user.profile.company
         context = self.get_context_data()
         items = context['items']
         for f in items.forms:
@@ -194,6 +213,7 @@ class SaleCreateView(CreateView):
                     Outflow.objects.create(
                         product=product,
                         quantity=item.quantity,
+                        company=self.request.user.profile.company,
                         sale_reference=f"Venda {self.object.id}",
                         description=f"Venda realizada no PDV (Venda {self.object.id}). Preço unitário com desconto: R$ {discounted_unit_price}"
                     )
@@ -205,41 +225,61 @@ class SaleCreateView(CreateView):
 
 
 
-class SaleListView(ListView):
+class SaleListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = models.Sale
     template_name = 'sale_list.html'
     context_object_name = 'sales'
     paginate_by = 8
+    permission_required = 'sales.view_sale'
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        queryset = super().get_queryset().filter(company=self.request.user.profile.company)
         client_id = self.request.GET.get("client")
         if client_id:
-            qs = qs.filter(client__id=client_id)
-        qs = qs.filter(
+            queryset = queryset.filter(client__id=client_id)
+        queryset = queryset.filter(
             Q(sale_type='quote') | 
             (Q(sale_type='order') & Q(order_status='finalized'))
         )
-        return qs
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['clients'] = Client.objects.all()
-        context['sales_metrics'] = metrics.get_sales_metrics
+        company = self.request.user.profile.company
+        context['clients'] = Client.objects.filter(company=company)
+        context['sales_metrics'] = metrics.get_sales_metrics(company) 
         return context
 
 
-class SaleDetailView(DetailView):
+class SaleDetailView(LoginRequiredMixin, CompanyObjectMixin, DetailView):
     model = models.Sale
     template_name = "sale_detail.html"
     context_object_name = "sale"
+    permission_required = 'sales.view_sale'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 
 class SaleCreateListAPIView(generics.ListCreateAPIView):
     queryset = models.Sale.objects.all()
     serializer_class = serializers.SaleSerializer
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
+
+    def perform_create(self, serializer):
+        serializer.save(company=self.request.user.profile.company)
+
 
 class SaleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Sale.objects.all()
     serializer_class = serializers.SaleSerializer
+
+    def get_queryset(self):
+        return models.Brand.objects.filter(company=self.request.user.profile.company)

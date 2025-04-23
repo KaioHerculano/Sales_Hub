@@ -1,5 +1,7 @@
 from django import forms
 from . import models
+from brands.models import Brand
+from categories.models import Category
 
 
 class ProductForm(forms.ModelForm):
@@ -26,3 +28,11 @@ class ProductForm(forms.ModelForm):
             'selling_price': 'Preço de Venda',
             'description': 'Descrição',
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and hasattr(user, 'profile') and user.profile.company:
+            company = user.profile.company
+            self.fields['brand'].queryset = Brand.objects.filter(company=company)
+            self.fields['category'].queryset = Category.objects.filter(company=company)

@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from . import models
+from products.models import Product
 
 
 class OutflowForm(forms.ModelForm):
@@ -29,3 +30,10 @@ class OutflowForm(forms.ModelForm):
             )
 
         return quantity
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and hasattr(user, 'profile') and user.profile.company:
+            company = user.profile.company
+            self.fields['product'].queryset = Product.objects.filter(company=company)

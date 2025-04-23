@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.conf import settings
 from products.models import Product
 from clients.models import Client
+from companies.models import Company
 from django.utils import timezone
 
 
@@ -49,6 +50,7 @@ ORDER_STATUS_CHOICES = [
 
 
 class Sale(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     sale_date = models.DateTimeField("Sale Date", auto_now_add=True)
     total = models.DecimalField("Sale Total", max_digits=10, decimal_places=2, default=Decimal("0.00"))
     discount = models.DecimalField("Discount (%)", max_digits=5, decimal_places=2, default=Decimal("0.00"), validators=[MinValueValidator(Decimal("0.00")), MaxValueValidator(Decimal("100.00"))], help_text="Enter the discount percentage")
@@ -148,6 +150,7 @@ class Budget(Sale):
             cashier=self.cashier,
             seller=self.seller,
             payment_method=self.payment_method,
+            company=self.company,
             sale_type='order',
             order_status='draft',
         )

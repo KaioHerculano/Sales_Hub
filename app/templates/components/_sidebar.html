@@ -4,70 +4,104 @@
       aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'home' %}"><i
-            class="bi bi-bar-chart me-2"></i> Dashboard</a>
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'home' %}">
+          <i class="bi bi-bar-chart me-2"></i> Dashboard
+        </a>
+
         {% if perms.suppliers.view_supplier %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'supplier_list' %}"><i
-            class="bi bi-airplane me-2"></i> Fornecedores</a>
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'supplier_list' %}">
+          <i class="bi bi-airplane me-2"></i> Fornecedores
+        </a>
         {% endif %}
 
         {% if perms.brands.view_brand %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'brand_list' %}"><i
-            class="bi bi-shop me-2"></i> Marcas</a>
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'brand_list' %}">
+          <i class="bi bi-shop me-2"></i> Marcas
+        </a>
         {% endif %}
 
         {% if perms.categories.view_category %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'category_list' %}"><i
-            class="bi bi-tags me-2"></i> Categorias</a>
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'category_list' %}">
+          <i class="bi bi-tags me-2"></i> Categorias
+        </a>
         {% endif %}
 
         {% if perms.clients.view_client %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'client_list' %}"><i
-            class="bi bi-people me-2"></i> Clientes</a>
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'client_list' %}">
+          <i class="bi bi-people me-2"></i> Clientes
+        </a>
         {% endif %}
 
         {% if perms.products.view_product %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'product_list' %}"><i
-            class="bi bi-box-seam me-2"></i> Produtos</a>
+        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'product_list' %}">
+          <i class="bi bi-box-seam me-2"></i> Produtos
+        </a>
         {% endif %}
 
-        {% if perms.inflows.view_inflow %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'inflow_list' %}"><i
-            class="bi bi-arrow-down-left-square me-2"></i> Entradas</a>
+        {% if perms.inflows.view_inflow or perms.outflows.view_outflow or perms.stockmoviment.view_stockmoviment %}
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center fw-bold mx-2 py-2"
+            href="#" id="estoqueDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-boxes me-2"></i> Estoque
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="estoqueDropdown">
+            {% if perms.inflows.view_inflow %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'inflow_list' %}">
+                <i class="bi bi-arrow-down-left-square me-2"></i> Entradas
+              </a>
+            </li>
+            {% endif %}
+            {% if perms.outflows.view_outflow %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'outflow_list' %}">
+                <i class="bi bi-arrow-up-right-square me-2"></i> Saídas
+              </a>
+            </li>
+            {% endif %}
+            {% if perms.stockmoviment.view_stockmoviment %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'stock_moviment_list' %}">
+                <i class="bi bi-arrow-down-up me-2"></i> Movimentações
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
         {% endif %}
 
-        {% if perms.outflows.view_outflow %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'outflow_list' %}"><i
-            class="bi bi-arrow-up-right-square me-2"></i> Saidas</a>
-        {% endif %}
-
-        {% if perms.stockmoviment.view_stockmoviment %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'stock_moviment_list' %}"><i
-            class="bi bi-arrow-down-up me-2"></i> Movimentações</a>
-        {% endif %}
         {% if perms.sales.view_sale and perms.sales.view_order and perms.sales.view_budget %}
-          <div class="btn-group" role="group">
-            <button type="button" class="btn dropdown-toggle nav-link d-flex align-items-center fw-bold mx-2 py-2 "
-              data-bs-toggle="dropdown" aria-expanded="false"> V.P.O</button>
-            <ul class="dropdown-menu">
-              {% if perms.sales.view_sale %}
-                <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'sale_list' %}"><i
-                    class="bi bi-cart me-2"></i> Vendas</a>
-              {% endif %}
-
-              {% if perms.sales.view_order %}
-                <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'order_list' %}"><i
-                    class="bi bi-list-check me-2"></i> Pedido</a>
-              {% endif %}
-
-              {% if perms.sales.view_budget %}
-                <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'budget_list' %}"><i
-                    class="bi bi-journal-text me-2"></i> Orçamento</a>
-              {% endif %}
-            </ul>
-          </div>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center fw-bold mx-2 py-2"
+            href="#" id="vpoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-basket me-2"></i> V.P.O
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="vpoDropdown">
+            {% if perms.sales.view_sale %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'sale_list' %}">
+                <i class="bi bi-cart me-2"></i> Vendas
+              </a>
+            </li>
+            {% endif %}
+            {% if perms.sales.view_order %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'order_list' %}">
+                <i class="bi bi-list-check me-2"></i> Pedido
+              </a>
+            </li>
+            {% endif %}
+            {% if perms.sales.view_budget %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'budget_list' %}">
+                <i class="bi bi-journal-text me-2"></i> Orçamento
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
         {% endif %}
 
         <li class="nav-item">

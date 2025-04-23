@@ -1,10 +1,11 @@
 from django.db import models
 from brands.models import Brand
 from categories.models import Category
+from companies.models import Company
 
 
 class Product(models.Model):
-
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     title = models.CharField(max_length=300)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name='products')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='products')

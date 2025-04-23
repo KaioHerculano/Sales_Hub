@@ -12,7 +12,8 @@ def update_stock_on_inflow(sender, instance, created, **kwargs):
         StockMoviment.objects.create(
             product=product,
             quantity=instance.quantity,
-            movement_type='in'
+            movement_type='in',
+            company=instance.company
         )
 
 
@@ -23,5 +24,6 @@ def update_stock_on_outflow(sender, instance, created, **kwargs):
         StockMoviment.objects.create(
             product=product,
             quantity=instance.quantity,
-            movement_type='out'
+            movement_type='out',
+            company=instance.company
         )

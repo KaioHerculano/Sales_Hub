@@ -4,9 +4,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.views.generic import ListView, CreateView, DetailView
 from django.urls import reverse_lazy
 from . import models, forms, serializers
+from django.core.exceptions import PermissionDenied
 
 
-class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class CompanyObjectMixin:
+    """Garante que objetos pertençam à company do usuário."""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request.user, 'profile'):
+            return queryset.filter(company=self.request.user.profile.company)
+        raise PermissionDenied("Usuário não associado a uma company.")
+
+
+class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = models.Outflow
     template_name = 'outflow_list.html'
     context_object_name = 'outflows'
@@ -14,7 +24,7 @@ class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permission_required = 'outflows.view_outflow'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(company=self.request.user.profile.company)
         product = self.request.GET.get('product')
 
         if product:
@@ -24,30 +34,52 @@ class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sales_metrics'] = metrics.get_sales_metrics
-
+        company = self.request.user.profile.company  # Obtenha a empresa do perfil do usuário
+        context['sales_metrics'] = metrics.get_sales_metrics(company)  # Passe o argumento 'company'
         return context
 
 
-class OutflowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class OutflowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, CreateView):
     model = models.Outflow
     template_name = 'outflow_create.html'
     form_class = forms.OutflowForm
     success_url = reverse_lazy('outflow_list')
     permission_required = 'outflows.add_outflow'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
-class OutflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    def form_valid(self, form):
+        form.instance.company = self.request.user.profile.company
+    
+        return super().form_valid(form)
+
+
+class OutflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = models.Outflow
     template_name = 'outflow_detail.html'
     permission_required = 'outflows.view_outflow'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 
 class OutflowCreateListAPIView(generics.ListCreateAPIView):
     queryset = models.Outflow.objects.all()
     serializer_class = serializers.OutflowSerializer
 
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
+
+    def perform_create(self, serializer):
+        serializer.save(company=self.request.user.profile.company)
+
 
 class OutflowRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.Outflow.objects.all()
     serializer_class = serializers.OutflowSerializer
+
+    def get_queryset(self):
+        return models.Brand.objects.filter(company=self.request.user.profile.company)

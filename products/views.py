@@ -6,9 +6,19 @@ from django.contrib import messages
 from django.db.models import Q
 from django.urls import reverse_lazy
 from . import models, forms, serializers
+from django.core.exceptions import PermissionDenied
 
 
-class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class CompanyObjectMixin:
+    """Garante que objetos pertençam à company do usuário."""
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if hasattr(self.request.user, 'profile'):
+            return queryset.filter(company=self.request.user.profile.company)
+        raise PermissionDenied("Usuário não associado a uma company.")
+
+
+class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = models.Product
     template_name = 'product_list.html'
     context_object_name = 'products'
@@ -16,7 +26,7 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permission_required = 'products.view_product'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(company=self.request.user.profile.company)
         search_term = self.request.GET.get('product')
 
         if search_term:
@@ -31,38 +41,62 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['product_metrics'] = metrics.get_product_metrics()
-
+        company = self.request.user.profile.company
+        context['product_metrics'] = metrics.get_product_metrics(company)
         return context
 
 
-class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, CreateView):
     model = models.Product
     template_name = 'product_create.html'
     form_class = forms.ProductForm
     success_url = reverse_lazy('product_list')
     permission_required = 'products.add_product'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
-class ProductDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    def form_valid(self, form):
+        form.instance.company = self.request.user.profile.company
+    
+        return super().form_valid(form)
+
+
+class ProductDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = models.Product
     template_name = 'product_detail.html'
     permission_required = 'products.view_product'
 
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
-class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = models.Product
     template_name = 'product_update.html'
     form_class = forms.ProductForm
     success_url = reverse_lazy('product_list')
     permission_required = 'products.change_product'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
-class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
+
+
+class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
     model = models.Product
     template_name = 'product_delete.html'
     success_url = reverse_lazy('product_list')
     permission_required = 'products.delete_product'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -95,7 +129,16 @@ class ProductCreateListAPIView(generics.ListCreateAPIView):
     queryset = models.Product.objects.all()
     serializer_class = serializers.ProductSerializer
 
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.request.user.profile.company)
+
+    def perform_create(self, serializer):
+        serializer.save(company=self.request.user.profile.company)
+
 
 class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Product.objects.all()
     serializer_class = serializers.ProductSerializer
+
+    def get_queryset(self):
+        return models.Brand.objects.filter(company=self.request.user.profile.company)
