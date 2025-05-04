@@ -1,6 +1,7 @@
 from django.contrib import admin
 from companies.models import Company, UserProfile
 from django.contrib.auth.models import Group
+from django.contrib.auth.admin import GroupAdmin
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
@@ -22,3 +23,11 @@ class UserProfileAdmin(admin.ModelAdmin):
     def get_groups(self, obj):
         return ", ".join([group.name for group in obj.user.groups.all()])
     get_groups.short_description = "Grupos do Usuário"
+
+class CustomGroupAdmin(GroupAdmin):
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(name__startswith="Empresa:")
+
+admin.site.unregister(Group)
+admin.site.register(Group, CustomGroupAdmin)
