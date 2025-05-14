@@ -44,8 +44,8 @@ class UserProfileCompanyInline(admin.TabularInline):
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('name', 'chpj', 'is_active', 'email')
-    search_fields = ('name', 'chpj', 'email')
+    list_display = ('name', 'cnpj', 'is_active', 'email')
+    search_fields = ('name', 'cnpj', 'email')
     list_filter = ('is_active',)
     inlines = [UserProfileCompanyInline]
 

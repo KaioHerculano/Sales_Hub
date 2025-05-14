@@ -6,7 +6,6 @@
   <form method="post" novalidate>
     {% csrf_token %}
     
-    <!-- Dados do Cliente, Vendedor e Status do Pedido -->
     <div class="row">
       <div class="col-md-6">
         <div class="card mb-4">
@@ -30,7 +29,6 @@
         </div>
       </div>
       
-      <!-- Dados de Desconto e Pagamento -->
       <div class="col-md-6">
         <div class="card mb-4">
           <div class="card-header">Dados de Desconto e Pagamento</div>
@@ -67,7 +65,6 @@
           <tbody id="items-container">
             {% for item_form in items.forms %}
             <tr class="item-row">
-              <!-- Campo ID oculto para itens existentes -->
               <td style="display: none;">{{ item_form.id }}</td>
               <td>{{ item_form.product }}</td>
               <td>{{ item_form.quantity }}</td>
@@ -76,7 +73,6 @@
             </tr>
             {% endfor %}
             <tr class="d-none" id="empty-item">
-              <!-- Campo ID para novo item (será automaticamente ignorado se vazio) -->
               <td style="display: none;">{{ items.empty_form.id }}</td>
               <td>{{ items.empty_form.product }}</td>
               <td>{{ items.empty_form.quantity }}</td>

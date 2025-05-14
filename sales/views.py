@@ -36,11 +36,14 @@ class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectM
     def get(self, request, *args, **kwargs):
         sale = self.get_object()
         items = sale.items.all()
-        
-        emitente_nome = "Empresa Sales Hub Ltda."
-        emitente_cnpj = "12.345.678/0001-99"
-        emitente_ie = "123456789"
-        emitente_endereco = "Rua Exemplo, 123 - Centro, Cidade - UF"
+
+        company = request.user.profile.company
+
+        emitente_nome = company.name
+        emitente_cnpj = company.cnpj or "CNPJ não informado"
+        emitente_ie = company.ie or "IE não informado"
+        emitente_endereco = company.address or "Endereço não informado"
+        emitente_email = company.email or "E-mail não informado"
 
         client = sale.client
         destinatario_nome = client.name
@@ -74,6 +77,8 @@ class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectM
         p.drawString(margin+10, y, f"CNPJ: {emitente_cnpj}  |  IE: {emitente_ie}")
         y -= 12
         p.drawString(margin+10, y, f"Endereço: {emitente_endereco}")
+        y -= 12
+        p.drawString(margin+10, y, f"E-mail: {emitente_email}")
         y -= 25
 
         p.setFont("Helvetica-Bold", 12)
@@ -112,11 +117,12 @@ class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectM
         for item in items:
             subtotal_item = item.quantity * item.unit_price
             total_geral += subtotal_item
+            y -= 10
             p.drawString(margin + 5, y, str(item.product.title))
             p.drawString(margin + 340, y, str(item.quantity))
             p.drawString(margin + 400, y, f"R$ {item.unit_price:.2f}")
             p.drawRightString(width - margin - 5, y, f"R$ {subtotal_item:.2f}")
-            y -= 15
+            y -= 10
             p.line(margin, y, width - margin, y)
             y -= 10
 
@@ -125,11 +131,13 @@ class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectM
         total_final = total_geral - discount_amount
 
         if discount > 0:
+            y -= 10
             p.setFont("Helvetica", 10)
             p.drawRightString(width - margin - 5, y, f"Desconto ({discount:.2f}%): -R$ {discount_amount:.2f}")
-            y -= 20
+            y -= 10
         
         p.setFont("Helvetica-Bold", 12)
+        y -= 10
         p.drawRightString(width - margin - 5, y, f"TOTAL: R$ {total_final:.2f}")
         y -= 30
 

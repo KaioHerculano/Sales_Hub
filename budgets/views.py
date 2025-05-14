@@ -94,9 +94,7 @@ class BudgetPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMi
             p.drawRightString(width - margin - 10, y, f"DESCONTO ({discount:.2f}%): -R$ {discount_amount:.2f}")
             y -= 25
         
-        y -= 15
-        p.line(margin, y, width - margin, y)
-        y -= 20
+        y -= 10
         p.setFont("Helvetica-Bold", 14)
         p.drawRightString(width - margin - 10, y, f"TOTAL GERAL: R$ {total_final:.2f}")
         p.setFont("Helvetica", 8)
