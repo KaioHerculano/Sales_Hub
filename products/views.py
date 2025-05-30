@@ -141,4 +141,4 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     serializer_class = serializers.ProductSerializer
 
     def get_queryset(self):
-        return models.Brand.objects.filter(company=self.request.user.profile.company)
+        return models.Product.objects.filter(company=self.request.user.profile.company)
