@@ -7,15 +7,28 @@ from django.db.models import Q
 from django.urls import reverse_lazy
 from . import models, forms, serializers
 from django.core.exceptions import PermissionDenied
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from .serializers import ProductSerializer
 
 
 class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
+
     def get_queryset(self):
         queryset = super().get_queryset()
         if hasattr(self.request.user, 'profile'):
             return queryset.filter(company=self.request.user.profile.company)
         raise PermissionDenied("Usuário não associado a uma company.")
+
+
+class PublicProductListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, company_id):
+        products = models.Product.objects.filter(company_id=company_id)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
 
 
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
