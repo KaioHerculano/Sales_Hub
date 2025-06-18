@@ -22,15 +22,6 @@ class CompanyObjectMixin:
         raise PermissionDenied("Usuário não associado a uma company.")
 
 
-class PublicProductListAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, company_id):
-        products = models.Product.objects.filter(company_id=company_id)
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
-
-
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
     model = models.Product
     template_name = 'product_list.html'
@@ -136,6 +127,27 @@ class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObje
             messages.error(request, error_msg)
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
+
+
+class PublicProductListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, company_id):
+        products = models.Product.objects.filter(company_id=company_id)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+
+class PublicProductDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, company_id, pk):
+        try:
+            product = models.Product.objects.get(company_id=company_id, pk=pk)
+        except models.Product.DoesNotExist:
+            return Response({'detail': 'Produto não encontrado.'}, status=404)
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
 
 
 class ProductCreateListAPIView(generics.ListCreateAPIView):
