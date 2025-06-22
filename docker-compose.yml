@@ -1,0 +1,23 @@
+services:
+
+  sales_hub_web:
+    build: .
+    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      - sales_hub_db
+
+  sales_hub_db:
+    image: postgres:15
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sales_hub
+
+volumes:
+  postgres_data:
