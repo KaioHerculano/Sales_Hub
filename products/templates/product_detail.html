@@ -3,19 +3,39 @@
 {% block content %}
 
     <div class="container mt-4">
-        <h3 class="display-6 fw-bold">Detalhes do Produto</h3>
+        <h3 class="display-6 fw-bold mb-4">Detalhes do Produto</h3>
+
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title">{{ object.title }}</h3>
-                <p class="card-text">Marca: {{ object.brand }}</p>
-                <p class="card-text">Categoria: {{ object.category }}</p>
-                <p class="card-text">Número de Série: <strong>{{ object.serie_number }}</strong></p>
-                <p class="card-text">Preço de custo: <strong>R$ {{ object.cost_price }}</strong></p>
-                <p class="card-text">Preço de Venda: <strong>R$ {{ object.selling_price }}</strong></p>
-                <p class="card-text">Quantidade em Estoque: <strong>{{ object.quantity }}</strong></p>
-                {% if object.description %}
-                    <p class="card-text">Descrição: {{ object.description }}</p>
-                {% endif %}
+                {# Usa o sistema de grid do Bootstrap para colocar texto e imagem lado a lado #}
+                <div class="row">
+                    {# Coluna para os detalhes do texto (à esquerda) #}
+                    <div class="col-md-7 order-md-1"> {# order-md-1 garante que no mobile o texto aparece primeiro #}
+                        <h3 class="card-title mb-3">{{ object.title }}</h3>
+                        <p class="card-text"><strong>Marca:</strong> {{ object.brand }}</p>
+                        <p class="card-text"><strong>Categoria:</strong> {{ object.category }}</p>
+                        <p class="card-text"><strong>Número de Série:</strong> <strong>{{ object.serie_number }}</strong></p>
+                        <p class="card-text"><strong>Preço de Custo:</strong> <strong>R$ {{ object.cost_price }}</strong></p>
+                        <p class="card-text"><strong>Preço de Venda:</strong> <strong>R$ {{ object.selling_price }}</strong></p>
+                        <p class="card-text"><strong>Quantidade em Estoque:</strong> <strong>{{ object.quantity }}</strong></p>
+                        {% if object.description %}
+                            <p class="card-text"><strong>Descrição:</strong> {{ object.description }}</p>
+                        {% endif %}
+                    </div>
+
+                    {# Coluna para a imagem (à direita) #}
+                    <div class="col-md-5 order-md-2 d-flex align-items-center justify-content-center"> {# order-md-2 para ficar à direita no desktop #}
+                        {% if object.photo %}
+                            <div class="text-center w-100">
+                                <img src="{{ object.photo.url }}" alt="{{ object.title }}" class="img-fluid rounded-lg shadow-sm" style="max-height: 350px; object-fit: contain;">
+                            </div>
+                        {% else %}
+                            <div class="text-center text-muted p-4 border rounded w-100" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <p class="mb-0">Nenhuma imagem disponível para este produto.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
         <a href="{% url 'product_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>
