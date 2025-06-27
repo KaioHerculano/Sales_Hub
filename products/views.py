@@ -11,7 +11,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from .serializers import ProductSerializer
-
+import os # Importar para usar em debug se necessário
+from django.conf import settings # Importar para aceder a MEDIA_ROOT em debug
 
 class CompanyObjectMixin:
 
@@ -37,7 +38,7 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
             queryset = queryset.filter(
                 Q(title__icontains=search_term)
                 | Q(brand__name__icontains=search_term)
-                | Q(numbering__icontains=search_term)
+                # | Q(numbering__icontains=search_term) # 'numbering' não está no modelo Product
                 | Q(serie_number__icontains=search_term)
             )
 
@@ -63,8 +64,24 @@ class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObje
         return kwargs
 
     def form_valid(self, form):
+        # DEBUG: Verifica se o ficheiro da foto está em request.FILES
+        if 'photo' in self.request.FILES:
+            print(f"DEBUG (CreateView): Ficheiro de foto recebido: {self.request.FILES['photo'].name}")
+            print(f"DEBUG (CreateView): Tamanho do ficheiro: {self.request.FILES['photo'].size} bytes")
+        else:
+            print("DEBUG (CreateView): NENHUM ficheiro de foto em request.FILES.")
+        
+        # DEBUG: Verifica a configuração de MEDIA_ROOT
+        print(f"DEBUG (CreateView): MEDIA_ROOT configurado para: {settings.MEDIA_ROOT}")
+        if not os.path.exists(settings.MEDIA_ROOT):
+            print(f"DEBUG (CreateView): O diretório MEDIA_ROOT NÃO EXISTE: {settings.MEDIA_ROOT}")
+        elif not os.access(settings.MEDIA_ROOT, os.W_OK):
+            print(f"DEBUG (CreateView): O diretório MEDIA_ROOT NÃO TEM PERMISSÕES DE ESCRITA: {settings.MEDIA_ROOT}")
+        else:
+            print(f"DEBUG (CreateView): O diretório MEDIA_ROOT EXISTE e tem permissões de escrita.")
+
+
         form.instance.company = self.request.user.profile.company
-    
         return super().form_valid(form)
 
 
@@ -91,6 +108,25 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObje
 
     def get_queryset(self):
         return super().get_queryset().filter(company=self.request.user.profile.company)
+
+    def form_valid(self, form):
+        # DEBUG: Verifica se o ficheiro da foto está em request.FILES
+        if 'photo' in self.request.FILES:
+            print(f"DEBUG (UpdateView): Ficheiro de foto recebido: {self.request.FILES['photo'].name}")
+            print(f"DEBUG (UpdateView): Tamanho do ficheiro: {self.request.FILES['photo'].size} bytes")
+        else:
+            print("DEBUG (UpdateView): NENHUM ficheiro de foto em request.FILES.")
+
+        # DEBUG: Verifica a configuração de MEDIA_ROOT
+        print(f"DEBUG (UpdateView): MEDIA_ROOT configurado para: {settings.MEDIA_ROOT}")
+        if not os.path.exists(settings.MEDIA_ROOT):
+            print(f"DEBUG (UpdateView): O diretório MEDIA_ROOT NÃO EXISTE: {settings.MEDIA_ROOT}")
+        elif not os.access(settings.MEDIA_ROOT, os.W_OK):
+            print(f"DEBUG (UpdateView): O diretório MEDIA_ROOT NÃO TEM PERMISSÕES DE ESCRITA: {settings.MEDIA_ROOT}")
+        else:
+            print(f"DEBUG (UpdateView): O diretório MEDIA_ROOT EXISTE e tem permissões de escrita.")
+            
+        return super().form_valid(form)
 
 
 class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
@@ -167,3 +203,4 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
     def get_queryset(self):
         return models.Product.objects.filter(company=self.request.user.profile.company)
+
