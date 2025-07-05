@@ -1,33 +1,21 @@
-from app import metrics
-from django.db.models import Q
-from rest_framework import generics
-from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, DetailView
-from products.models import Product
-from outflows.models import Outflow
-from clients.models import Client
-from django.http import JsonResponse
-from django.views import View
 from decimal import Decimal
-from . import models, forms, serializers
 from io import BytesIO
-from decimal import Decimal
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import ListView, CreateView, DetailView
 from reportlab.lib.pagesizes import A4
-from django.views.generic import DetailView
+from reportlab.pdfgen import canvas
+from rest_framework import generics
+from app import metrics
+from clients.models import Client
+from companies.mixins import CompanyObjectMixin
+from outflows.models import Outflow
+from products.models import Product
+from . import forms, models, serializers
 from .models import Sale
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
 
 class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = Sale
@@ -264,9 +252,6 @@ class SaleDetailView(LoginRequiredMixin, CompanyObjectMixin, DetailView):
     template_name = "sale_detail.html"
     context_object_name = "sale"
     permission_required = 'sales.view_sale'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 
 class SaleCreateListAPIView(generics.ListCreateAPIView):

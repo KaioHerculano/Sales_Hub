@@ -1,21 +1,12 @@
-from rest_framework import generics
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models.deletion import ProtectedError
-from django.urls import reverse_lazy
-from . import models, forms, serializers
 from django.http import HttpResponseRedirect
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from rest_framework import generics
+from companies.mixins import CompanyObjectMixin
+from . import models, forms, serializers
 
 
 class SupplierListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
@@ -53,9 +44,6 @@ class SupplierDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObj
     template_name = 'supplier_detail.html'
     permission_required = 'suppliers.view_supplier'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class SupplierUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = models.Supplier
@@ -64,18 +52,12 @@ class SupplierUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObj
     success_url = reverse_lazy('supplier_list')
     permission_required = 'suppliers.change_supplier'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class SupplierDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
     model = models.Supplier
     template_name = 'supplier_delete.html'
     success_url = reverse_lazy('supplier_list')
     permission_required = 'suppliers.delete_supplier'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
     def form_valid(self, form):
         try:
@@ -86,7 +68,7 @@ class SupplierDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObj
 
             messages.error(
                 self.request,
-                "❌ Não é possível excluir. Há produtos vinculados a este fornecedor!"
+                "Não é possível excluir. Há produtos vinculados a este fornecedor!"
             )
 
             return self.render_to_response(self.get_context_data())

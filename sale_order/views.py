@@ -1,25 +1,15 @@
+from decimal import Decimal
+from io import BytesIO
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
-from django.http import HttpResponseRedirect
-from decimal import Decimal
-from sales.models import Sale
-from sales import forms
-from outflows.models import Outflow
-from io import BytesIO
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
+from reportlab.pdfgen import canvas
+from companies.mixins import CompanyObjectMixin
+from outflows.models import Outflow
+from sales import forms
+from sales.models import Sale
 
 
 class OrderPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
@@ -120,9 +110,7 @@ class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMi
     context_object_name = 'orders'
     paginate_by = 8
     permission_required = 'sales.view_order'
-    
-    def get_queryset(self):
-        return Sale.objects.filter(sale_type='order').exclude(order_status='finalized').filter(company=self.request.user.profile.company)
+
 
 class OrderCreateView(LoginRequiredMixin, CreateView):
     model = Sale
@@ -194,9 +182,6 @@ class OrderDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
     context_object_name = 'order'
     permission_required = 'sales.view_order'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class OrderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = Sale
@@ -209,9 +194,6 @@ class OrderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
     
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)

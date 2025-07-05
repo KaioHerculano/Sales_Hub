@@ -1,19 +1,10 @@
-from app import metrics
-from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, DetailView
 from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, DetailView
+from rest_framework import generics
+from app import metrics
+from companies.mixins import CompanyObjectMixin
 from . import models, forms, serializers
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
 
 
 class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
@@ -61,9 +52,6 @@ class OutflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObje
     model = models.Outflow
     template_name = 'outflow_detail.html'
     permission_required = 'outflows.view_outflow'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 
 class OutflowCreateListAPIView(generics.ListCreateAPIView):

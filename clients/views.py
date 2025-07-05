@@ -1,18 +1,9 @@
-from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from rest_framework import generics
+from companies.mixins import CompanyObjectMixin
 from . import models, forms, serializers
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
 
 
 class ClientListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
@@ -50,9 +41,6 @@ class ClientDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjec
     template_name = 'client_detail.html'
     permission_required = 'clients.view_client'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class ClientUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = models.Client
@@ -61,18 +49,12 @@ class ClientUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjec
     success_url = reverse_lazy('client_list')
     permission_required = 'clients.change_client'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class ClientDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
     model = models.Client
     template_name = 'client_delete.html'
     success_url = reverse_lazy('client_list')
     permission_required = 'clients.delete_client'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 
 class ClientCreateListAPIView(generics.ListCreateAPIView):

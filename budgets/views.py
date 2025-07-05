@@ -1,25 +1,16 @@
-from reportlab.lib.pagesizes import A4
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views import View
-from sales.models import Budget
-from sales import forms
 from decimal import Decimal
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
 from io import BytesIO
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from companies.mixins import CompanyObjectMixin
+from sales import forms
+from sales.models import Budget
 
 
 class BudgetListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
@@ -117,9 +108,6 @@ class BudgetDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjec
     model = Budget
     template_name = 'budget_detail.html'
     permission_required = 'sales.view_budget'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -173,9 +161,6 @@ class BudgetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjec
         kwargs['user'] = self.request.user
         return kwargs
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -204,9 +189,6 @@ class BudgetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjec
     template_name = 'budget_delete.html'
     success_url = reverse_lazy('budget_list')
     permission_required = 'sales.delete_budget'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
 class ConvertToOrderView(View):
 
