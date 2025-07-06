@@ -115,7 +115,24 @@ class PublicProductListAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, company_id):
+        category_name = request.GET.get('category')
+        brand_name = request.GET.get('brand')
+        search = request.GET.get('search')
+
         products = models.Product.objects.filter(company_id=company_id)
+
+        if category_name:
+            products = products.filter(category__name__iexact=category_name)
+
+        if brand_name:
+            products = products.filter(brand__name__iexact=brand_name)
+
+        if search:
+            products = products.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
