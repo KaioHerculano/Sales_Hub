@@ -105,3 +105,34 @@ O **Sales Hub** é um sistema completo para gestão comercial desenvolvido em Dj
 ## API Endpoints
 - **/api/v1/ - Endpoint base para integrações.**
 - **Documentação Swagger disponível em /api/docs/ após configuração.**
+
+## 📷 Capturas de Tela
+
+### 📱 Login:
+![Lista de Produtos](screenshot/login.png)
+
+### 📊 Dashboard:
+![Página Inicial](screenshot/home1.png)
+![Página Inicial](screenshot/home2.png)
+![Página Inicial](screenshot/home3.png)
+
+### ✈️ Lista de Fornecedores:
+![Lista de Produtos](screenshot/fornecedores.png)
+
+### 🏠 Lista de Marcas:
+![Lista de Produtos](screenshot/marcas.png)
+
+### 🏷️ Lista de Categorias:
+![Lista de Produtos](screenshot/categorias.png)
+
+### 🚻 Lista de Clientes:
+![Lista de Produtos](screenshot/clientes.png)
+
+### 📦 Lista de Produtos:
+![Lista de Produtos](screenshot/produtos.png)
+
+### 📦 Estoque:
+![Lista de Produtos](screenshot/entradas.png)
+
+### 🛍️ Vendas:
+![Lista de Produtos](screenshot/vendas.png)
