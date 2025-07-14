@@ -74,33 +74,50 @@ O **Sales Hub** é um sistema completo para gestão comercial desenvolvido em Dj
 - **Virtualenv** (recomendado)
 
 ### Clonar repositório
-
-- **git clone https://github.com/KaioHerculano/Sales_Hub.git**
-- **cd Sales_Hub**
-
+  ```bash
+git clone https://github.com/KaioHerculano/Sales_Hub.git
+   ```
+  ```bash
+cd Sales_Hub
+   ```
 ### Clonar repositório
-- **python -m venv venv**
+  ```bash
+python -m venv venv
+   ```
 # Linux/Mac:
-- **source venv/bin/activate**
+  ```bash
+source venv/bin/activate
+   ```
 # Windows:
-- **venv\Scripts\activate**
-
+  ```bash
+venv\Scripts\activate
+   ```
 ### Instalar dependências
-- **pip install -r [requirements.txt](http://_vscodecontentref_/0)**
-
+  ```bash
+pip install -r requirements.txt
+   ```
 ### Configurar banco de dados
-- **python [manage.py](http://_vscodecontentref_/1) migrate**
-
+  ```bash
+python manage.py migrate
+   ```
 ### Criar superusuário
-- **python [manage.py](http://_vscodecontentref_/2) createsuperuser**
-
+  ```bash
+python manage.py createsuperuser
+   ```
 ### Iniciar servidor
-- **python [manage.py](http://_vscodecontentref_/3) runserver**
-
+  ```bash
+python manage.py runserver
+   ```
 ### Acessar sistema
-- **Aplicação: http://localhost:8000**
-- **Admin: http://localhost:8000/admin**
----
+
+Aplicação: 
+  ```bash
+http://localhost:8000
+  ```
+Admin:
+  ```bash
+http://localhost:8000/admin
+  ```
 ### 📚 Documentação
 ## API Endpoints
 - **/api/v1/ - Endpoint base para integrações.**
