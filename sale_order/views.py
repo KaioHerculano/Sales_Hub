@@ -6,11 +6,10 @@ from decimal import Decimal
 from sales.models import Sale
 from sales import forms
 from outflows.models import Outflow
-from io import BytesIO
 from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
 from django.core.exceptions import PermissionDenied
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 
 class CompanyObjectMixin:
@@ -31,86 +30,33 @@ class OrderPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMix
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        items = order.items.all()
-
-        buffer = BytesIO()
-        p = canvas.Canvas(buffer, pagesize=A4)
-        width, height = A4
-        margin = 50
-        y = height - margin
-
-        p.setFont("Helvetica-Bold", 20)
-        p.setFillColorRGB(0.2, 0.5, 0.8)
-        p.drawCentredString(width / 2, y - 30, "SALES HUB")
-        p.setFillColorRGB(0, 0, 0)
-
-        p.line(margin, y - 45, width - margin, y - 45)
-
-        p.setFont("Helvetica-Bold", 16)
-        p.drawString(margin, y - 80, f"PEDIDO DE VENDA #{order.id}")
-
-        p.setFont("Helvetica", 12)
-        p.drawString(margin, y - 110, f"Cliente: {order.client}")
-        p.drawString(margin, y - 130, f"Data: {order.sale_date.strftime('%d/%m/%Y')}")
-        y -= 170
-
-        p.setFont("Helvetica-Bold", 12)
-        p.setFillColorRGB(0.9, 0.9, 0.9)
-        p.rect(margin, y - 10, width - 2 * margin, 25, fill=True, stroke=False)
-        p.setFillColorRGB(0, 0, 0)
-        p.drawString(margin + 10, y, "PRODUTO")
-        p.drawString(250, y, "QTD")
-        p.drawString(320, y, "PREÇO UNITÁRIO")
-        p.drawRightString(width - margin - 10, y, "TOTAL")
-        p.setFont("Helvetica", 10)
-        y -= 35
-
+        items = order.items.select_related('product').all()
         total_geral = Decimal("0.00")
+
         for item in items:
-            subtotal_item = item.quantity * item.unit_price
-            total_geral += subtotal_item
-            p.drawString(margin + 10, y, str(item.product.title))
-            p.drawString(250, y, str(item.quantity))
-            p.drawString(320, y, f"R$ {item.unit_price:.2f}")
-            p.drawRightString(width - margin - 10, y, f"R$ {subtotal_item:.2f}")
-            p.line(margin, y - 10, width - margin, y - 10)
-            y -= 25
+            subtotal = item.quantity * item.unit_price
+            item.subtotal_calculado = subtotal
+            total_geral += subtotal
 
         discount = order.discount or Decimal("0.00")
         discount_amount = total_geral * (discount / Decimal("100.00"))
         total_final = total_geral - discount_amount
 
-        if discount > 0:
-            y -= 15
-            p.line(margin, y, width - margin, y)
-            y -= 20
-            p.setFont("Helvetica", 12)
-            p.drawRightString(width - margin - 10, y, f"DESCONTO ({discount:.2f}%): -R$ {discount_amount:.2f}")
-            y -= 25
+        context = {
+            'order': order,
+            'items': items,
+            'total_geral': total_geral,
+            'discount_amount': discount_amount,
+            'total_final': total_final,
+            'request': request, 
+        }
 
-        y -= 10
-        p.setFont("Helvetica-Bold", 14)
-        p.drawRightString(width - margin - 10, y, f"TOTAL GERAL: R$ {total_final:.2f}")
-
-        y -= 60
-        p.line(margin + 100, y, width - margin - 100, y)
-        y -= 20
-        p.setFont("Helvetica", 12)
-        p.drawCentredString(width / 2, y, "Assinatura do Cliente:")
-
-        p.setFont("Helvetica", 8)
-        p.setFillColorRGB(0.5, 0.5, 0.5)
-        footer_text = "SALES HUB - Sistema de Gestão Comercial | Contato: (65) 9 9999-9999"
-        p.drawCentredString(width / 2, 30, footer_text)
-
-        p.showPage()
-        p.save()
-
-        pdf = buffer.getvalue()
-        buffer.close()
-
-        response = HttpResponse(pdf, content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename="pedido_venda_{order.id}.pdf"'
+        html_string = render_to_string('pdf_invoice.html', context)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf_file = html.write_pdf()
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="pedido_venda_{order.id}.pdf"'
+        
         return response
 
 
