@@ -1,21 +1,12 @@
-from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
-from django.urls import reverse_lazy
-from . import models, forms, serializers
 from django.http import HttpResponseRedirect
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from rest_framework import generics
+from companies.mixins import CompanyObjectMixin
+from . import models, forms, serializers
 
 
 class BrandListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
@@ -53,9 +44,6 @@ class BrandDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
     template_name = 'brand_detail.html'
     permission_required = 'brands.view_brand'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class BrandUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = models.Brand
@@ -64,18 +52,12 @@ class BrandUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
     success_url = reverse_lazy('brand_list')
     permission_required = 'brands.change_brand'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class BrandDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
     model = models.Brand
     template_name = 'brand_delete.html'
     success_url = reverse_lazy('brand_list')
     permission_required = 'brands.delete_brand'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -86,7 +68,7 @@ class BrandDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
         except ProtectedError:
             messages.error(
                 request,
-                "❌ Não é possível excluir. Há produtos vinculados a esta marca!"
+                "Não é possível excluir. Há produtos vinculados a esta marca!"
             )
             return self.render_to_response(self.get_context_data())
 

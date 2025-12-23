@@ -1,15 +1,16 @@
+from decimal import Decimal
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
-from django.http import HttpResponseRedirect
-from decimal import Decimal
-from sales.models import Sale
-from sales import forms
+from companies.mixins import CompanyObjectMixin
 from outflows.models import Outflow
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
 from weasyprint import HTML
+from sales import forms
+from sales.models import Sale
 
 
 class CompanyObjectMixin:
@@ -66,9 +67,7 @@ class OrderListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMi
     context_object_name = 'orders'
     paginate_by = 8
     permission_required = 'sales.view_order'
-    
-    def get_queryset(self):
-        return Sale.objects.filter(sale_type='order').exclude(order_status='finalized').filter(company=self.request.user.profile.company)
+
 
 class OrderCreateView(LoginRequiredMixin, CreateView):
     model = Sale
@@ -140,9 +139,6 @@ class OrderDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
     context_object_name = 'order'
     permission_required = 'sales.view_order'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class OrderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = Sale
@@ -155,9 +151,6 @@ class OrderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
     
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)

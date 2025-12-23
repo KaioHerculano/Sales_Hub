@@ -1,21 +1,13 @@
-from rest_framework import generics
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models.deletion import ProtectedError
-from django.urls import reverse_lazy
-from . import models, forms, serializers
 from django.http import HttpResponseRedirect
-from django.core.exceptions import PermissionDenied
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from rest_framework import generics
+from companies.mixins import CompanyObjectMixin
+from . import models, forms, serializers
 
-
-class CompanyObjectMixin:
-    """Garante que objetos pertençam à company do usuário."""
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
 
 
 class CategoryListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
@@ -53,9 +45,6 @@ class CategoryDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObj
     template_name = 'category_detail.html'
     permission_required = 'categories.view_category'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, UpdateView):
     model = models.Category
@@ -64,18 +53,12 @@ class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObj
     success_url = reverse_lazy('category_list')
     permission_required = 'categories.change_category'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-
 
 class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DeleteView):
     model = models.Category
     template_name = 'category_delete.html'
     success_url = reverse_lazy('category_list')
     permission_required = 'categories.delete_category'
-
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
 
     def form_valid(self, form):
         try:
@@ -86,7 +69,7 @@ class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObj
 
             messages.error(
                 self.request,
-                "❌ Não é possível excluir. Há produtos vinculados a esta categoria!"
+                "Não é possível excluir. Há produtos vinculados a esta categoria!"
             )
 
             return self.render_to_response(self.get_context_data())

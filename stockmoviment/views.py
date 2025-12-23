@@ -1,18 +1,9 @@
-from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import ListView
 from django.db.models import Q
+from django.views.generic import ListView
+from rest_framework import generics
+from companies.mixins import CompanyObjectMixin
 from . import models, serializers
-from django.core.exceptions import PermissionDenied
-
-
-class CompanyObjectMixin:
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if hasattr(self.request.user, 'profile'):
-            return queryset.filter(company=self.request.user.profile.company)
-        raise PermissionDenied("Usuário não associado a uma company.")
 
 
 class StockMovimentListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):
