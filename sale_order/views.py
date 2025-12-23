@@ -7,8 +7,7 @@ from companies.mixins import CompanyObjectMixin
 from outflows.models import Outflow
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-from django.template.loader import render_to_string
-from weasyprint import HTML
+from sales.utils.pdf import generate_order_pdf
 from sales import forms
 from sales.models import Sale
 
@@ -31,33 +30,9 @@ class OrderPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMix
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        items = order.items.select_related('product').all()
-        total_geral = Decimal("0.00")
-
-        for item in items:
-            subtotal = item.quantity * item.unit_price
-            item.subtotal_calculado = subtotal
-            total_geral += subtotal
-
-        discount = order.discount or Decimal("0.00")
-        discount_amount = total_geral * (discount / Decimal("100.00"))
-        total_final = total_geral - discount_amount
-
-        context = {
-            'order': order,
-            'items': items,
-            'total_geral': total_geral,
-            'discount_amount': discount_amount,
-            'total_final': total_final,
-            'request': request, 
-        }
-
-        html_string = render_to_string('pdf_invoice.html', context)
-        html = HTML(string=html_string, base_url=request.build_absolute_uri())
-        pdf_file = html.write_pdf()
-        response = HttpResponse(pdf_file, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="pedido_venda_{order.id}.pdf"'
-        
+        pdf = generate_order_pdf(order)
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Context-Disposition"] = f'attachment; filename="pedido_venda_{order.id}.pdf"'
         return response
 
 
