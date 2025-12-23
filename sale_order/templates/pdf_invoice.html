@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedido de Venda #{{ order.id }}</title>
+    <style>
+        /* Configuração da Página A4 */
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-center {
+                content: "SALES HUB - Sistema de Gestão Comercial | Contato: (65) 9 9999-9999";
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 8pt;
+                color: #888;
+            }
+        }
+
+        /* Estilos Gerais */
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        /* Cabeçalho */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 20pt;
+            color: #3380CC; /* Aquele azul (0.2, 0.5, 0.8) aproximado */
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .header-line {
+            border-bottom: 1px solid #000;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Dados do Pedido */
+        .order-info {
+            margin-bottom: 30px;
+        }
+        .order-info h2 {
+            font-size: 16pt;
+            margin-bottom: 5px;
+        }
+        .order-info p {
+            margin: 2px 0;
+        }
+
+        /* Tabela de Produtos */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #E6E6E6; /* Cinza claro */
+            font-weight: bold;
+            text-align: left;
+            padding: 8px;
+            font-size: 12pt;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            font-size: 10pt;
+        }
+        
+        /* Alinhamentos da Tabela */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .col-qty { width: 10%; }
+        .col-price { width: 20%; }
+        .col-total { width: 20%; }
+
+        /* Totais */
+        .totals-section {
+            width: 100%;
+            margin-top: 10px;
+            text-align: right;
+        }
+        .totals-row {
+            margin-bottom: 5px;
+        }
+        .discount-line {
+            border-bottom: 1px solid #000;
+            margin: 5px 0 5px auto;
+            width: 40%; 
+        }
+        .grand-total {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Assinatura */
+        .signature-section {
+            margin-top: 80px; /* Espaço para assinar */
+            text-align: center;
+            page-break-inside: avoid; /* Evita que a assinatura quebre página */
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 60%;
+            margin: 0 auto 10px auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Sales Hub</h1>
+        <div class="header-line"></div>
+    </div>
+
+    <div class="order-info">
+        <h2>PEDIDO DE VENDA #{{ order.id }}</h2>
+        <p><strong>Cliente:</strong> {{ order.client }}</p>
+        <p><strong>Data:</strong> {{ order.sale_date|date:"d/m/Y" }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>PRODUTO</th>
+                <th class="text-center col-qty">QTD</th>
+                <th class="text-right col-price">PREÇO UNIT.</th>
+                <th class="text-right col-total">TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.title }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">R$ {{ item.unit_price|floatformat:2 }}</td>
+                <td class="text-right">R$ {{ item.get_subtotal|floatformat:2 }}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals-section">
+        {% if order.discount > 0 %}
+            <div class="totals-row">
+                Subtotal: R$ {{ total_geral|floatformat:2 }}
+            </div>
+            <div class="discount-line"></div>
+            <div class="totals-row">
+                DESCONTO ({{ order.discount|floatformat:2 }}%): -R$ {{ discount_amount|floatformat:2 }}
+            </div>
+        {% endif %}
+        
+        <div class="grand-total">
+            TOTAL GERAL: R$ {{ total_final|floatformat:2 }}
+        </div>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-line"></div>
+        <p>Assinatura do Cliente</p>
+    </div>
+
+</body>
+</html>
