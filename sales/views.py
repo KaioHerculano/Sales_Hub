@@ -1,4 +1,6 @@
 from decimal import Decimal
+from django.db import transaction
+from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
@@ -59,45 +61,31 @@ class SaleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectM
         return context
 
     def form_valid(self, form):
-        form.instance.company = self.request.user.profile.company
         context = self.get_context_data()
         items = context['items']
-        for f in items.forms:
-            if not f.has_changed():
-                f.empty_permitted = True
 
-        self.object = form.save(commit=False)
-        if not self.object.cashier and self.request.user.is_authenticated:
-            self.object.cashier = self.request.user
-        self.object.save()
+        with transaction.atomic():
+            form.instance.company = self.request.user.profile.company
+            if not form.instance.cashier:
+                form.instance.cashier = self.request.user
 
-        if items.is_valid():
-            items.instance = self.object
-            items.save()
+            self.object = form.save()
+            if items.is_valid():
+                items.instance = self.object
+                items.save()
 
-            subtotal = sum(item.unit_price * item.quantity for item in self.object.items.all())
-            discount_factor = (Decimal("100.00") - self.object.discount) / Decimal("100.00")
-            total = subtotal * discount_factor
-            self.object.total = total.quantize(Decimal("0.01"))
-            self.object.save(update_fields=["total"])
+                self.object.update_totals()
+                self.object.finalize()
 
-            if self.object.order_status == 'finalized':
-                for item in self.object.items.all():
-                    product = item.product
-                    discounted_unit_price = (item.unit_price * discount_factor).quantize(Decimal("0.01"))
-                    Outflow.objects.create(
-                        product=product,
-                        quantity=item.quantity,
-                        company=self.request.user.profile.company,
-                        sale_reference=f"Venda {self.object.id}",
-                        description=f"Venda realizada no PDV (Venda {self.object.id}). Preço unitário com desconto: R$ {discounted_unit_price}"
-                    )
-            from django.http import HttpResponseRedirect
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            print(items.errors)
-            return self.form_invalid(form)
+            else:
+                return self.form_invalid(form)
 
+
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def form_invalid(self, form):
+        context = self.get_context_data()
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class SaleListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, ListView):

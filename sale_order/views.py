@@ -7,7 +7,7 @@ from companies.mixins import CompanyObjectMixin
 from outflows.models import Outflow
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-from sales.utils.pdf import generate_order_pdf
+from sales.utils.pdf import generate_invoice_pdf
 from sales import forms
 from sales.models import Sale
 
@@ -30,7 +30,7 @@ class OrderPDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMix
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        pdf = generate_order_pdf(order)
+        pdf = generate_invoice_pdf(order)
         response = HttpResponse(pdf, content_type="application/pdf")
         response["Context-Disposition"] = f'attachment; filename="pedido_venda_{order.id}.pdf"'
         return response
