@@ -89,6 +89,34 @@ class Sale(models.Model):
 
         if self.sale_type == 'quote' and not self.expiration_date:
             raise ValidationError("Orçamentos requerem uma data de validade.")
+    
+    def update_totals(self):
+        subtotal = sum(item.unit_price * item.quantity for item in self.items.all())
+        discount_factor = (Decimal("100.00") - self.discount) / Decimal ("100.00")
+        total = subtotal * discount_factor
+        self.total = total.quantize(Decimal("0.01"))
+        self.save(update_fields=["total"])
+    
+    def finalize(self):
+        if self.order_status == 'finalized':
+            self._create_outflows()
+    
+    def _create_outflows(self):
+        from outflows.models import Outflow
+
+        discount_factor = (Decimal("100.00") - self.discount) / Decimal("100.00")
+
+        outflows = []
+        for item in self.items.all():
+            discount_unit_price = (item.unit_price * discount_factor).quantize(Decimal("0.01"))
+            outflows.append(Outflow(
+                product=item.product,
+                quantity=item.quantity,
+                company=self.company,
+                sale_reference=f"Venda {self.id}",
+                description=f"Venda PDV ({self.id}). Unit com desconto: R$ {discount_unit_price}"
+            ))
+        Outflow.objects.bulk_create(outflows)
 
 
 class SaleItem(models.Model):
