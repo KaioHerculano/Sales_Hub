@@ -63,4 +63,4 @@ class InflowRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.InflowSerializer
 
     def get_queryset(self):
-        return models.Brand.objects.filter(company=self.request.user.profile.company)
+        return models.Inflow.objects.filter(company=self.request.user.profile.company)

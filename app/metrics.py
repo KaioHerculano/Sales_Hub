@@ -30,19 +30,28 @@ def get_sales_metrics(company):
         Q(sale_type__in=['quote', 'order']) &
         Q(order_status='finalized') &
         Q(company=company)
-    )
+    ).prefetch_related('items')
     
     outflows = Outflow.objects.filter(company=company).exclude(
         sale_reference__startswith='Venda '
-    )
+    ).select_related('product')
     
     total_sales_count = sales.count()
-    total_sales_value = Decimal('0')
-    total_sales_profit = Decimal('0')
-    total_products_sold = 0
     
+    # Using aggregation for better performance (fixing N+1)
+    from django.db.models import Sum, ExpressionWrapper, DecimalField
+    
+    sales_aggregation = sales.aggregate(
+        total_value=Sum('total'),
+    )
+    
+    total_sales_value = sales_aggregation['total_value'] or Decimal('0')
+    total_products_sold = 0
+    total_sales_profit = Decimal('0')
+
+    # For profit calculation, we still need to iterate or use more complex annotations
+    # But prefetching items helps. 
     for sale in sales:
-        total_sales_value += sale.total
         sale_cost = sum(item.quantity * item.purchase_price for item in sale.items.all())
         total_sales_profit += sale.total - sale_cost
         total_products_sold += sum(item.quantity for item in sale.items.all())
@@ -100,11 +109,11 @@ def get_daily_sales_quantity_data(company):
     )
 
 def get_product_count_by_category_metric(company):
-    categories = Category.objects.all()
+    categories = Category.objects.filter(company=company)
     return {category.name: Product.objects.filter(category=category, company=company).count() for category in categories}
 
 def get_graphic_product_brand_metric(company):
-    brands = Brand.objects.all()
+    brands = Brand.objects.filter(company=company)
     return {brand.name: Product.objects.filter(brand=brand, company=company).count() for brand in brands}
 
 def get_sales_by_seller_metrics(company):

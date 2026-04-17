@@ -30,13 +30,14 @@ class InvoicePDFView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectM
 
 
 
-class GetProductPriceView(View):
+class GetProductPriceView(LoginRequiredMixin, View):
     def get(self, request):
         product_id = request.GET.get("product_id")
         try:
-            product = Product.objects.get(pk=product_id)
+            # Added company filtering to prevent IDOR
+            product = Product.objects.get(pk=product_id, company=request.user.profile.company)
             return JsonResponse({'price': str(product.selling_price)})
-        except Product.DoesNotExist:
+        except (Product.DoesNotExist, ValueError, TypeError):
             return JsonResponse({'price': ''})
 
 
@@ -114,7 +115,7 @@ class SaleListView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMix
         return context
 
 
-class SaleDetailView(LoginRequiredMixin, CompanyObjectMixin, DetailView):
+class SaleDetailView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjectMixin, DetailView):
     model = models.Sale
     template_name = "sale_detail.html"
     context_object_name = "sale"
@@ -142,4 +143,4 @@ class SaleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.SaleSerializer
 
     def get_queryset(self):
-        return models.Brand.objects.filter(company=self.request.user.profile.company)
+        return models.Sale.objects.filter(company=self.request.user.profile.company)

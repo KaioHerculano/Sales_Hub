@@ -117,16 +117,14 @@ class BudgetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObjec
     success_url = reverse_lazy('budget_list')
     permission_required = 'sales.delete_budget'
 
-class ConvertToOrderView(View):
+class ConvertToOrderView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'sales.add_sale'
 
-    def get_queryset(self):
-        return super().get_queryset().filter(company=self.request.user.profile.company)
-    
     def get(self, request, pk):
-        budget = get_object_or_404(Budget, pk=pk)
+        budget = get_object_or_404(Budget, pk=pk, company=request.user.profile.company)
         return render(request, 'budget_convert.html', {'budget': budget})
 
     def post(self, request, pk):
-        budget = get_object_or_404(Budget, pk=pk)
+        budget = get_object_or_404(Budget, pk=pk, company=request.user.profile.company)
         order = budget.convert_to_order()
         return redirect('order_detail', pk=order.pk)
