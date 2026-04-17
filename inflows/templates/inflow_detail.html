@@ -1,23 +1,91 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block title %}Detalhes da Entrada | Sales Hub{% endblock %}
+{% block page_title %}Detalhes da Entrada de Estoque{% endblock %}
 
-    <div class="container mt-4">
-        <h3 class="display-6 fw-bold">Detalhes da Entrada</h3>
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title fw-bold">{{ object.product }}</h3>
-                <p class="card-text">Fornecedor: <strong>{{ object.supplier }}</strong></p>
-                {% if object.numbering %}
-                    <p class="card-text">Numeração: <strong>{{ object.numbering }}</strong></p>
-                {% endif %}
-                <p class="card-text">Quantidade: <strong>{{ object.quantity }}</strong></p>
-                {% if object.description %}
-                    <p class="card-text">Descrição: {{ object.description }}</p>
-                {% endif %}
-            </div>
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{% url 'inflow_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-arrow-left"></i>
+                <span>Voltar para Lista</span>
+            </a>
         </div>
-        <a href="{% url 'inflow_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>
     </div>
 
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="premium-card p-4 h-100 shadow-sm border-0">
+                <div class="d-flex align-items-center gap-3 mb-5 pb-4 border-bottom">
+                    <div class="rounded-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 64px; height: 64px;">
+                        <i class="bi bi-box-arrow-in-down fs-2"></i>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-0">{{ object.product.title }}</h2>
+                        <span class="text-muted small">Entrada ID: #{{ object.id }}</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-4 bg-light bg-opacity-50 h-100 border">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Fornecedor</label>
+                            <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                                <i class="bi bi-truck text-muted"></i>
+                                {{ object.supplier|default:"-" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-4 bg-primary bg-opacity-10 h-100 border border-primary border-opacity-10">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Quantidade Entrante</label>
+                            <div class="fw-bold text-primary fs-4">
+                                {{ object.quantity }} <small class="fw-normal">unidades</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if object.description %}
+                    <div class="col-12">
+                        <label class="text-muted small text-uppercase fw-bold d-block mb-2">Observações / Descrição</label>
+                        <div class="p-3 rounded-4 bg-light bg-opacity-25 border">
+                            <p class="mb-0 text-muted">{{ object.description }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="premium-card p-4 h-100 shadow-sm border-0">
+                <h5 class="fw-bold mb-4">Informações de Registro</h5>
+                <div class="d-flex flex-column gap-4">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                        <div class="text-muted small">Data da Operação</div>
+                        <div class="text-end">
+                            <div class="fw-bold">{{ object.created_at|date:"d/m/Y" }}</div>
+                            <div class="text-muted smaller">{{ object.created_at|date:"H:i" }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">Registrado por</div>
+                        <div class="fw-medium">Sistema de Estoque</div>
+                    </div>
+
+                    <div class="mt-4 p-3 rounded-4 bg-warning bg-opacity-10 border border-warning border-opacity-10">
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-info-circle-fill text-warning"></i>
+                            <div class="text-muted small">
+                                Esta é uma operação de entrada confirmada. O estoque do produto foi incrementado automaticamente.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

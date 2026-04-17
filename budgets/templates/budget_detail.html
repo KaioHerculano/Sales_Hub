@@ -1,58 +1,142 @@
 {% extends 'base.html' %}
 
+{% block title %}Orçamento #{{ object.pk }} | Sales Hub{% endblock %}
+{% block page_title %}Detalhes do Orçamento{% endblock %}
+
 {% block content %}
-<div class="container">
-  <h2 class="mt-4">Detalhes do Orçamento #{{ object.pk }}</h2>
-  <div class="card mb-4">
-    <div class="card-header">
-      Informações do Orçamento
+<div class="container-fluid p-0">
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{% url 'budget_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-arrow-left"></i>
+                <span>Voltar para Lista</span>
+            </a>
+        </div>
     </div>
-    <div class="card-body">
-      <p><strong>Cliente:</strong> {{ object.client }}</p>
-      <p><strong>Vendedor:</strong> {{ object.seller }}</p>
-      <p><strong>Validade:</strong> {{ object.expiration_date|date:"d/m/Y" }}</p>
-      <p><strong>Status:</strong> {{ object.get_order_status_display }}</p>
-      <p><strong>Desconto (%):</strong> {{ budget.discount }}</p>
-      <p><strong>Total:</strong> R$ {{ object.total }}</p>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">
-      Itens do Orçamento
-    </div>
-    <div class="card-body">
-      {% if items %}
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead class="thead-dark">
-            <tr>
-              <th>Produto</th>
-              <th>Quantidade</th>
-              <th>Preço Unitário</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in items %}
-            <tr>
-              <td>{{ item.product.title }}</td>
-              <td>{{ item.quantity }}</td>
-              <td>R$ {{ item.unit_price }}</td>
-              <td>R$ {{ item.subtotal|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <p>Nenhum item registrado para este orçamento.</p>
-      {% endif %}
-    </div>
-  </div>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="premium-card p-4 h-100 shadow-sm border-0">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="fw-bold mb-0 text-primary">Resumo do Orçamento</h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">#{{ object.id }}</span>
+                </div>
 
-  <div class="mt-4">
-    <a href="{% url 'budget_list' %}" class="btn btn-secondary">Voltar</a>
-  </div>
+                <div class="d-flex flex-column gap-4">
+                    <div class="p-3 rounded-4 bg-light bg-opacity-50 border">
+                        <label class="text-muted small text-uppercase fw-bold d-block mb-1">Cliente</label>
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-person-circle text-primary"></i>
+                            {{ object.client }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Validade</label>
+                            <span class="fw-medium text-danger"><i class="bi bi-calendar-event me-1"></i>{{ object.expiration_date|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Status</label>
+                            {% with status=object.order_status %}
+                            <span class="badge {% if status == 'PENDING' %}bg-warning{% elif status == 'APPROVED' %}bg-success{% else %}bg-secondary{% endif %} bg-opacity-10 {% if status == 'PENDING' %}text-warning{% elif status == 'APPROVED' %}text-success{% else %}text-secondary{% endif %} rounded-pill px-2">
+                                {{ object.get_order_status_display }}
+                            </span>
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Vendedor</label>
+                            <span class="small fw-medium">{{ object.seller }}</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Desconto</label>
+                            <span class="text-danger fw-bold">{{ object.discount }}%</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <label class="text-muted small text-uppercase fw-bold d-block mb-2 text-center">Valor Total</label>
+                        <div class="text-center">
+                            <h2 class="fw-bold text-primary mb-0">R$ {{ object.total }}</h2>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 mt-3">
+                        {% if object.order_status == 'PENDING' and perms.sales.add_order %}
+                            <a href="{% url 'budget_convert' object.pk %}" class="btn btn-success py-2 fw-bold rounded-3">
+                                <i class="bi bi-check-circle me-2"></i>Converter em Venda
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'budget_pdf' object.pk %}" class="btn btn-outline-danger py-2 fw-bold rounded-3">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>Gerar PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="premium-card p-0 overflow-hidden shadow-sm border-0 h-100">
+                <div class="p-4 border-bottom bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-list-check text-primary"></i>
+                        Itens do Orçamento
+                    </h5>
+                    {% if perms.sales.change_budget %}
+                        <a href="{% url 'budget_update' object.id %}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                            <i class="bi bi-pencil me-1"></i>Editar Itens
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">Produto</th>
+                                <th class="py-3 text-uppercase small fw-bold text-muted text-center">Qtd</th>
+                                <th class="py-3 text-uppercase small fw-bold text-muted text-end">Unitário</th>
+                                <th class="pe-4 py-3 text-uppercase small fw-bold text-muted text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            {% for item in items %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold">{{ item.product.title }}</div>
+                                    <div class="text-muted smaller">{{ item.product.brand }}</div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-3">{{ item.quantity }}</span>
+                                </td>
+                                <td class="text-end text-muted">R$ {{ item.unit_price }}</td>
+                                <td class="pe-4 text-end fw-bold">R$ {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    Nenhum item neste orçamento.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-4 bg-light bg-opacity-10 border-top mt-auto">
+                    <div class="d-flex justify-content-between align-items-center px-2">
+                        <span class="text-muted fw-bold small text-uppercase">Itens Listados: {{ items|length }}</span>
+                        <div class="text-end">
+                            <span class="text-muted small me-2">Estimativa Total:</span>
+                            <span class="fw-bold fs-5">R$ {{ object.total }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
