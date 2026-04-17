@@ -25,16 +25,12 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
-if not SECRET_KEY and not os.getenv("DJANGO_DEV_MODE"):
-    raise ValueError("The SECRET_KEY environment variable must be set in production.")
-elif not SECRET_KEY:
-    SECRET_KEY = "django-insecure-fallback-dev-key"
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fallback-dev-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,*").split(",")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -101,12 +97,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default':{
+    'default': {
         'ENGINE': "django.db.backends.postgresql_psycopg2",
         'NAME': os.environ.get("POSTGRES_DB", "sales_hub"),
         'USER': os.environ.get("POSTGRES_USER", "postgres"),
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "postgres"),
-        'HOST': os.environ.get("POSTGRES_HOST", "sales_hub_db"),
+        'HOST': os.environ.get("POSTGRES_HOST", "postgres"),
         'PORT': os.environ.get("POSTGRES_PORT", "5432"),
     }
 }

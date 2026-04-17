@@ -1,122 +1,175 @@
-<nav class="navbar navbar-expand-lg bg-body shadow-lg">
-  <div class="container">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-center" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'home' %}">
-          <i class="bi bi-bar-chart me-2"></i> Dashboard
+<style>
+    .sidebar {
+        width: var(--sidebar-width);
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 1.5rem 1rem;
+        z-index: 1040;
+        border-right: 1px solid var(--glass-border);
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link {
+        color: #64748b;
+        font-weight: 500;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    [data-bs-theme="dark"] .nav-link {
+        color: #94a3b8;
+    }
+
+    .nav-link:hover {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        transform: translateX(5px);
+    }
+
+    .nav-link.active {
+        background: var(--primary-gradient);
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-link i {
+        font-size: 1.25rem;
+    }
+
+    .sidebar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2.5rem;
+        padding-left: 1rem;
+        text-decoration: none;
+    }
+
+    .nav-section-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        font-weight: 600;
+        margin: 1.5rem 0 0.75rem 1rem;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<aside class="sidebar glass-panel d-none d-lg-flex">
+    <a href="{% url 'home' %}" class="sidebar-brand">
+        SALES HUB
+    </a>
+
+    <div class="nav flex-column flex-nowrap overflow-auto hide-scrollbar">
+        <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Dashboard</span>
         </a>
 
-        {% if perms.suppliers.view_supplier %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'supplier_list' %}">
-          <i class="bi bi-airplane me-2"></i> Fornecedores
-        </a>
-        {% endif %}
-
+        <div class="nav-section-title">Cadastros</div>
+        
         {% if perms.brands.view_brand %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'brand_list' %}">
-          <i class="bi bi-shop me-2"></i> Marcas
+        <a href="{% url 'brand_list' %}" class="nav-link {% if 'brand' in request.path %}active{% endif %}">
+            <i class="bi bi-tags-fill"></i>
+            <span>Marcas</span>
         </a>
         {% endif %}
 
         {% if perms.categories.view_category %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'category_list' %}">
-          <i class="bi bi-tags me-2"></i> Categorias
-        </a>
-        {% endif %}
-
-        {% if perms.clients.view_client %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'client_list' %}">
-          <i class="bi bi-people me-2"></i> Clientes
+        <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.path %}active{% endif %}">
+            <i class="bi bi-collection-fill"></i>
+            <span>Categorias</span>
         </a>
         {% endif %}
 
         {% if perms.products.view_product %}
-        <a class="nav-link d-flex align-items-center fw-bold mx-2 py-2" href="{% url 'product_list' %}">
-          <i class="bi bi-box-seam me-2"></i> Produtos
+        <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
+            <i class="bi bi-box-seam-fill"></i>
+            <span>Produtos</span>
         </a>
         {% endif %}
 
-        {% if perms.inflows.view_inflow or perms.outflows.view_outflow or perms.stockmoviment.view_stockmoviment %}
-        <div class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center fw-bold mx-2 py-2"
-            href="#" id="estoqueDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-boxes me-2"></i> Estoque
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="estoqueDropdown">
-            {% if perms.inflows.view_inflow %}
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'inflow_list' %}">
-                <i class="bi bi-arrow-down-left-square me-2"></i> Entradas
-              </a>
-            </li>
-            {% endif %}
-            {% if perms.outflows.view_outflow %}
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'outflow_list' %}">
-                <i class="bi bi-arrow-up-right-square me-2"></i> Saídas
-              </a>
-            </li>
-            {% endif %}
-            {% if perms.stockmoviment.view_stockmoviment %}
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'stock_moviment_list' %}">
-                <i class="bi bi-arrow-down-up me-2"></i> Movimentações
-              </a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
+        {% if perms.suppliers.view_supplier %}
+        <a href="{% url 'supplier_list' %}" class="nav-link {% if 'supplier' in request.path %}active{% endif %}">
+            <i class="bi bi-truck-flatbed"></i>
+            <span>Fornecedores</span>
+        </a>
         {% endif %}
 
-        {% if perms.sales.view_sale and perms.sales.view_order and perms.sales.view_budget %}
-        <div class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center fw-bold mx-2 py-2"
-            href="#" id="vpoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-basket me-2"></i> V.P.O
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="vpoDropdown">
-            {% if perms.sales.view_sale %}
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'sale_list' %}">
-                <i class="bi bi-cart me-2"></i> Vendas
-              </a>
-            </li>
-            {% endif %}
-            {% if perms.sales.view_order %}
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'order_list' %}">
-                <i class="bi bi-list-check me-2"></i> Pedido
-              </a>
-            </li>
-            {% endif %}
-            {% if perms.sales.view_budget %}
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'budget_list' %}">
-                <i class="bi bi-journal-text me-2"></i> Orçamento
-              </a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
+        {% if perms.clients.view_client %}
+        <a href="{% url 'client_list' %}" class="nav-link {% if 'client' in request.path %}active{% endif %}">
+            <i class="bi bi-people-fill"></i>
+            <span>Clientes</span>
+        </a>
         {% endif %}
 
-        <li class="nav-item">
-          {% if user.is_authenticated %}
-          <form action="{% url 'logout' %}" method="post" id="logout-form" class="d-flex align-items-center">
-            {% csrf_token %}
-            <button type="submit" class="nav-link d-flex align-items-center fw-bold mx-2 py-2"
-              style="border: none; background: none;">
-              <i class="bi bi-box-arrow-right align-middle me-2"></i>
-              <span class="ms-1 align-middle">Sair</span>
-            </button>
-          </form>
-          {% endif %}
-        </li>
-      </div>
+        <div class="nav-section-title">Operações</div>
+
+        {% if perms.inflows.view_inflow %}
+        <a href="{% url 'inflow_list' %}" class="nav-link {% if 'inflow' in request.path %}active{% endif %}">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Entradas</span>
+        </a>
+        {% endif %}
+
+        {% if perms.outflows.view_outflow %}
+        <a href="{% url 'outflow_list' %}" class="nav-link {% if 'outflow' in request.path %}active{% endif %}">
+            <i class="bi bi-box-arrow-up-right"></i>
+            <span>Saídas</span>
+        </a>
+        {% endif %}
+
+        <div class="nav-section-title">Vendas</div>
+
+        {% if perms.sales.view_budget %}
+        <a href="{% url 'budget_list' %}" class="nav-link {% if 'budget' in request.path %}active{% endif %}">
+            <i class="bi bi-file-earmark-text-fill"></i>
+            <span>Orçamentos</span>
+        </a>
+        {% endif %}
+
+        {% if perms.sales.view_sale %}
+        <a href="{% url 'sale_list' %}" class="nav-link {% if 'sale' in request.path %}active{% endif %}">
+            <i class="bi bi-cart-check-fill"></i>
+            <span>Vendas</span>
+        </a>
+        {% endif %}
+
+        <div class="nav-section-title">Estoque</div>
+        
+        <a href="{% url 'stock_moviment_list' %}" class="nav-link {% if 'stock_moviment' in request.path %}active{% endif %}">
+            <i class="bi bi-arrow-left-right"></i>
+            <span>Movimentações</span>
+        </a>
+
     </div>
-  </div>
-</nav>
+
+    <div class="mt-auto pt-4 border-top border-secondary border-opacity-10">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>Sair</span>
+            </button>
+        </form>
+    </div>
+</aside>

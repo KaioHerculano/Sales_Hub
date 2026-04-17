@@ -1,78 +1,98 @@
 {% extends 'base.html' %}
 
+{% block title %}Clientes | Sales Hub{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
 {% block content %}
 
-{% block title %}
-SALES HUB - Clientes
-{% endblock %}
-
-<div class="row mb-3">
+<div class="row mb-4 align-items-center g-3">
     <div class="col-md-6">
         <form method="get" action="{% url 'client_list' %}">
-            <div class="input-group">
-                <input type="text" class="form-control" name="name" placeholder="Nome" value="{{ request.get.name }}">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i>
+            <div class="input-group glass-panel" style="border-radius: 12px; overflow: hidden;">
+                <span class="input-group-text bg-transparent border-0 ps-3">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-0 bg-transparent py-2" name="name" placeholder="Pesquisar cliente..." value="{{ request.GET.name }}">
+                <button type="submit" class="btn btn-primary px-4" style="border-radius: 0 12px 12px 0;">
+                    Buscar
                 </button>
             </div>
         </form>
     </div>
     {% if perms.clients.add_client %}
-        <div class="col-md-6">
-            <a href="{% url 'client_create' %}" class="btn btn-success float-end">
-                <i>NOVO CLIENTE</i>
+        <div class="col-md-6 text-md-end">
+            <a href="{% url 'client_create' %}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2" style="border-radius: 12px; background: var(--primary-gradient); border: none;">
+                <i class="bi bi-person-plus"></i>
+                <span>Novo Cliente</span>
             </a>
         </div>
     {% endif %}
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Data de Nascimento</th>
-                <th>Endereço</th>
-                <th>Bairro</th>
-                <th>Telefone</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for client in clients %}
-            <tr>
-                <td>{{ client.id }}</td>
-                <td>{{ client.name }}</td>
-                <td>{{ client.date_of_birth }}</td>
-                <td>{{ client.address }}</td>
-                <td>{{ client.neighborhood }}</td>
-                <td>{{ client.telephone }}</td>
-                <td>
-                    {% if perms.clients.view_client %}
-                        <a href="{% url 'client_detail' client.id %}" class="btn btn-info btn-sm">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    {% endif %}
+<div class="premium-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light bg-opacity-50">
+                <tr>
+                    <th class="ps-4 py-3 text-uppercase small fw-bold text-muted" style="width: 80px;">ID</th>
+                    <th class="py-3 text-uppercase small fw-bold text-muted">Cliente</th>
+                    <th class="py-3 text-uppercase small fw-bold text-muted">Contato</th>
+                    <th class="py-3 text-uppercase small fw-bold text-muted">Endereço</th>
+                    <th class="pe-4 py-3 text-uppercase small fw-bold text-muted text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="border-top-0">
+                {% for client in clients %}
+                <tr>
+                    <td class="ps-4 fw-medium text-muted">#{{ client.id }}</td>
+                    <td>
+                        <div class="fw-bold text-primary">{{ client.name }}</div>
+                        <div class="text-muted small">Nasc: {{ client.date_of_birth|date:"d/m/Y"|default:"-" }}</div>
+                    </td>
+                    <td>
+                        <div class="fw-medium"><i class="bi bi-telephone text-muted me-2"></i>{{ client.telephone|default:"-" }}</div>
+                    </td>
+                    <td>
+                        <div class="small">{{ client.address|default:"-" }}</div>
+                        <div class="text-muted smaller">{{ client.neighborhood|default:"" }}</div>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            {% if perms.clients.view_client %}
+                                <a href="{% url 'client_detail' client.id %}" class="btn-action" title="Ver Detalhes">
+                                    <i class="bi bi-eye text-primary"></i>
+                                </a>
+                            {% endif %}
 
-                    {% if perms.clients.change_client %}
-                        <a href="{% url 'client_update' client.id %}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                    {% endif %}
+                            {% if perms.clients.change_client %}
+                                <a href="{% url 'client_update' client.id %}" class="btn-action" title="Editar">
+                                    <i class="bi bi-pencil text-warning"></i>
+                                </a>
+                            {% endif %}
 
-                    {% if perms.clients.delete_client %}
-                        <a href="{% url 'client_delete' client.id %}" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                            {% if perms.clients.delete_client %}
+                                <a href="{% url 'client_delete' client.id %}" class="btn-action" title="Excluir">
+                                    <i class="bi bi-trash text-danger"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+                        Nenhum cliente encontrado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-{% include 'components/_pagination.html' %}
+<div class="mt-4">
+    {% include 'components/_pagination.html' %}
+</div>
 
-{% endblock %}
+{% endblock %}

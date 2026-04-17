@@ -1,28 +1,44 @@
 {% extends 'base.html' %}
 
+{% block title %}Excluir Orçamento | Sales Hub{% endblock %}
+{% block page_title %}Excluir Orçamento{% endblock %}
+
 {% block content %}
-<div class="container">
-  <h2 class="mt-4 text-body">Excluir Orçamento #{{ object.pk }}</h2>
-  <div class="card  mb-4">
-    <div class="card-header bg-body text-body">
-      Confirmação de Exclusão
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-6 col-lg-5">
+        <div class="premium-card p-5 text-center shadow-lg border-0">
+            <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                <i class="bi bi-file-earmark-x-fill fs-1"></i>
+            </div>
+            
+            <h2 class="fw-bold mb-3">Remover Orçamento</h2>
+            <p class="text-muted mb-4">
+                Você está prestes a excluir o orçamento <strong class="text-dark">#{{ object.id }}</strong> para o cliente <strong class="text-dark">{{ object.client }}</strong>. 
+                Esta operação não pode ser revertida.
+            </p>
+
+            {% if messages %}
+                <div class="alert alert-danger mb-4 text-start">
+                    {% for message in messages %}
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-x-circle-fill"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="d-flex flex-column gap-3">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger py-3 fw-bold rounded-3 shadow-sm">
+                    <i class="bi bi-trash me-2"></i>
+                    Sim, excluir orçamento
+                </button>
+                <a href="{% url 'budget_list' %}" class="btn btn-light py-3 fw-medium rounded-3 border">
+                    Não, cancelar e voltar
+                </a>
+            </form>
+        </div>
     </div>
-    <div class="card-body">
-      <p class="lead">Tem certeza de que deseja excluir o orçamento <strong>#{{ object.pk }}</strong>?</p>
-      <p>Esta ação não pode ser desfeita.</p>
-      <ul>
-        <li><strong>Cliente:</strong> {{ object.client }}</li>
-        <li><strong>Validade:</strong> {{ object.expiration_date|date:"d/m/Y" }}</li>
-        <li><strong>Status:</strong> {{ object.get_order_status_display }}</li>
-        <li><strong>Total:</strong> R$ {{ object.total }}</li>
-      </ul>
-      
-      <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
-        <a href="{% url 'budget_list' %}" class="btn btn-secondary">Cancelar e Voltar</a>
-      </form>
-    </div>
-  </div>
 </div>
 {% endblock %}

@@ -1,44 +1,111 @@
 {% extends 'base.html' %}
 
+{% block title %}Detalhes do Produto | Sales Hub{% endblock %}
+{% block page_title %}Detalhes do Produto{% endblock %}
+
 {% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-4">
+        <div class="col-12 text-start">
+            <a href="{% url 'product_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-arrow-left"></i>
+                <span>Voltar para Lista</span>
+            </a>
+        </div>
+    </div>
 
-    <div class="container mt-4">
-        <h3 class="display-6 fw-bold mb-4">Detalhes do Produto</h3>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="premium-card p-4 h-100">
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="rounded-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 56px; height: 56px;">
+                                <i class="bi bi-box-seam-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h2 class="fw-bold mb-0">{{ object.title }}</h2>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">{{ object.brand }}</span>
+                            </div>
+                        </div>
 
-        <div class="card">
-            <div class="card-body">
-                {# Usa o sistema de grid do Bootstrap para colocar texto e imagem lado a lado #}
-                <div class="row">
-                    {# Coluna para os detalhes do texto (à esquerda) #}
-                    <div class="col-md-7 order-md-1"> {# order-md-1 garante que no mobile o texto aparece primeiro #}
-                        <h3 class="card-title mb-3">{{ object.title }}</h3>
-                        <p class="card-text"><strong>Marca:</strong> {{ object.brand }}</p>
-                        <p class="card-text"><strong>Categoria:</strong> {{ object.category }}</p>
-                        <p class="card-text"><strong>Número de Série:</strong> <strong>{{ object.serie_number }}</strong></p>
-                        <p class="card-text"><strong>Preço de Custo:</strong> <strong>R$ {{ object.cost_price }}</strong></p>
-                        <p class="card-text"><strong>Preço de Venda:</strong> <strong>R$ {{ object.selling_price }}</strong></p>
-                        <p class="card-text"><strong>Quantidade em Estoque:</strong> <strong>{{ object.quantity }}</strong></p>
-                        {% if object.description %}
-                            <p class="card-text"><strong>Descrição:</strong> {{ object.description }}</p>
-                        {% endif %}
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Categoria</label>
+                                <span class="fw-medium">{{ object.category }}</span>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Nº de Série</label>
+                                <code class="fw-bold text-dark">{{ object.serie_number|default:"-" }}</code>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-4 bg-light bg-opacity-25 border mb-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-2">Descrição</label>
+                            <p class="mb-0 text-muted small">{{ object.description|default:"Sem descrição adicional." }}</p>
+                        </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            {% if perms.products.change_product %}
+                                <a href="{% url 'product_update' object.id %}" class="btn btn-warning px-4 d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-pencil"></i>
+                                    <span>Editar Produto</span>
+                                </a>
+                            {% endif %}
+                            {% if perms.products.delete_product %}
+                                <a href="{% url 'product_delete' object.id %}" class="btn btn-danger px-4 d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Excluir</span>
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
 
-                    {# Coluna para a imagem (à direita) #}
-                    <div class="col-md-5 order-md-2 d-flex align-items-center justify-content-center"> {# order-md-2 para ficar à direita no desktop #}
-                        {% if object.photo %}
-                            <div class="text-center w-100">
-                                <img src="{{ object.photo.url }}" alt="{{ object.title }}" class="img-fluid rounded-lg shadow-sm" style="max-height: 350px; object-fit: contain;">
-                            </div>
-                        {% else %}
-                            <div class="text-center text-muted p-4 border rounded w-100" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
-                                <p class="mb-0">Nenhuma imagem disponível para este produto.</p>
-                            </div>
-                        {% endif %}
+                    <div class="col-md-5">
+                        <div class="rounded-4 overflow-hidden border bg-white p-2 d-flex align-items-center justify-content-center" style="min-height: 300px; background: radial-gradient(circle, #ffffff 0%, #f8f9fa 100%);">
+                            {% if object.photo %}
+                                <img src="{{ object.photo.url }}" alt="{{ object.title }}" class="img-fluid rounded-3" style="max-height: 280px; object-fit: contain;">
+                            {% else %}
+                                <div class="text-center text-muted opacity-50">
+                                    <i class="bi bi-image fs-1 d-block mb-2"></i>
+                                    <span class="small">Sem Imagem</span>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <a href="{% url 'product_list' %}" class="btn btn-secondary mt-3"> Cancelar e Voltar </a>
-    </div>
 
+        <div class="col-lg-4">
+            <div class="premium-card p-4 mb-4 bg-primary bg-opacity-10 border-primary border-opacity-10">
+                <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-graph-up-arrow text-primary"></i>
+                    Financeiro e Estoque
+                </h5>
+                <div class="d-flex flex-column gap-3">
+                    <div class="p-3 rounded-3 bg-white border">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">Preço de Venda</div>
+                        <div class="fs-4 fw-bold text-success">R$ {{ object.selling_price }}</div>
+                    </div>
+                    <div class="p-3 rounded-3 bg-white border">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">Preço de Custo</div>
+                        <div class="fs-5 fw-bold text-danger">R$ {{ object.cost_price }}</div>
+                    </div>
+                    <div class="p-3 rounded-3 bg-white border">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">Quantidade em Estoque</div>
+                        <div class="fs-4 fw-bold {% if object.quantity > 0 %}text-primary{% else %}text-danger{% endif %}">
+                            {{ object.quantity }} <small class="fw-normal">unidades</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-card p-4">
+                <h5 class="fw-bold mb-3">Histórico</h5>
+                <p class="text-muted small mb-0">Rastreador de movimentações em breve.</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
