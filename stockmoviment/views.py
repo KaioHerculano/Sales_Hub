@@ -42,4 +42,4 @@ class StockMovimentRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.StockMovimentSerializer
 
     def get_queryset(self):
-        return models.Brand.objects.filter(company=self.request.user.profile.company)
+        return models.StockMoviment.objects.filter(company=self.request.user.profile.company)

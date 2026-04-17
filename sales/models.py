@@ -99,7 +99,10 @@ class Sale(models.Model):
     
     def finalize(self):
         if self.order_status == 'finalized':
-            self._create_outflows()
+            # Idempotency check: only create outflows if they don't exist yet for this sale
+            from outflows.models import Outflow
+            if not Outflow.objects.filter(sale_reference=f"Venda {self.id}").exists():
+                self._create_outflows()
     
     def _create_outflows(self):
         from outflows.models import Outflow
@@ -171,6 +174,10 @@ class Budget(Sale):
         super().save(*args, **kwargs)
 
     def convert_to_order(self):
+        if self.order_status == 'converted':
+            # Already converted, return the existing order
+            return Order.objects.filter(company=self.company, client=self.client, total=self.total, sale_type='order').last()
+
         order = Order.objects.create(
             client=self.client,
             discount=self.discount,
