@@ -1,73 +1,116 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalhes da Marca | Sales Hub{% endblock %}
+{% block title %}Marca: {{ object.name }} | Sales Hub{% endblock %}
 {% block page_title %}Detalhes da Marca{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-0">
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="{% url 'brand_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+    <!-- Navegação e Título -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <a href="{% url 'brand_list' %}" class="btn btn-light rounded-pill d-inline-flex align-items-center gap-2 px-3 shadow-sm mb-2 mb-md-0">
                 <i class="bi bi-arrow-left"></i>
                 <span>Voltar para Lista</span>
             </a>
         </div>
+        <div class="col-md-6 text-md-end">
+            <div class="d-flex gap-2 justify-content-md-end">
+                {% if perms.brands.change_brand %}
+                <a href="{% url 'brand_update' object.id %}" class="btn btn-warning rounded-pill px-4 d-inline-flex align-items-center gap-2 shadow-sm">
+                    <i class="bi bi-pencil"></i>
+                    <span>Editar</span>
+                </a>
+                {% endif %}
+                {% if perms.brands.delete_brand %}
+                <a href="{% url 'brand_delete' object.id %}" class="btn btn-danger rounded-pill px-4 d-inline-flex align-items-center gap-2 shadow-sm">
+                    <i class="bi bi-trash"></i>
+                    <span>Excluir</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
+        <!-- Card Principal -->
         <div class="col-lg-8">
-            <div class="premium-card p-4 h-100">
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <div class="rounded-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 64px; height: 64px;">
-                        <i class="bi bi-tag-fill fs-2"></i>
-                    </div>
-                    <div>
-                        <h2 class="fw-bold mb-0">{{ object.name }}</h2>
-                        <span class="text-muted small">ID: #{{ object.id }}</span>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-12">
-                        <label class="text-muted small text-uppercase fw-bold mb-2 d-block">Descrição</label>
-                        <div class="p-3 rounded-3 bg-light bg-opacity-50">
-                            {{ object.description|default:"Nenhuma descrição informada." }}
+            <div class="premium-card p-5 h-100 shadow-sm border-0 position-relative overflow-hidden">
+                <div class="position-relative">
+                    <div class="d-flex align-items-center gap-4 mb-5">
+                        <div class="rounded-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary shadow-sm" style="width: 80px; height: 80px;">
+                            <i class="bi bi-tag-fill fs-1"></i>
+                        </div>
+                        <div>
+                            <span class="text-primary fw-bold text-uppercase small ls-wider d-block mb-1">Marca de Produto</span>
+                            <h1 class="fw-bold mb-0 display-5">{{ object.name }}</h1>
+                            <span class="text-muted small">Registrado em nosso ecossistema</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-5 d-flex gap-2">
-                    {% if perms.brands.change_brand %}
-                        <a href="{% url 'brand_update' object.id %}" class="btn btn-warning px-4 d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-pencil"></i>
-                            <span>Editar Marca</span>
-                        </a>
-                    {% endif %}
-                    {% if perms.brands.delete_brand %}
-                        <a href="{% url 'brand_delete' object.id %}" class="btn btn-danger px-4 d-inline-flex align-items-center gap-2">
-                            <i class="bi bi-trash"></i>
-                            <span>Excluir</span>
-                        </a>
-                    {% endif %}
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">Descrição da Marca</h6>
+                            <div class="p-4 rounded-4 bg-light bg-opacity-50 border-start border-4 border-primary shadow-sm">
+                                <p class="mb-0 fs-5 text-dark lh-base italic">
+                                    "{{ object.description|default:"Nenhuma descrição detalhada foi fornecida para esta marca." }}"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Barra Lateral de Informações -->
         <div class="col-lg-4">
-            <div class="premium-card p-4">
-                <h5 class="fw-bold mb-4">Informações do Sistema</h5>
-                <div class="d-flex flex-column gap-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Criado em:</span>
-                        <span class="fw-medium">{{ object.created_at|date:"d/m/Y H:i"|default:"-" }}</span>
+            <div class="d-flex flex-column gap-4 h-100">
+                <!-- Info do Sistema -->
+                <div class="premium-card p-4 shadow-sm border-0">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-gear-fill text-primary"></i>
+                        Metadados
+                    </h5>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-dashed">
+                            <span class="text-muted small">Código ID</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">#{{ object.id }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-dashed">
+                            <span class="text-muted small">Data de Criação</span>
+                            <span class="fw-medium small text-dark">{{ object.created_at|date:"d/m/Y H:i"|default:"-" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Última Modificação</span>
+                            <span class="fw-medium small text-dark">{{ object.updated_at|date:"d/m/Y H:i"|default:"-" }}</span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Última atualização:</span>
-                        <span class="fw-medium">{{ object.updated_at|date:"d/m/Y H:i"|default:"-" }}</span>
+                </div>
+
+                <!-- Estatísticas Simples (Placeholder) -->
+                <div class="premium-card p-4 shadow-sm border-0 bg-primary bg-opacity-10 border-primary border-opacity-10 flex-grow-1">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart-fill text-primary"></i>
+                        Impacto
+                    </h5>
+                    <p class="text-muted small">Esta marca está vinculada a diversos produtos no seu catálogo atual.</p>
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="small fw-bold">Relevância</span>
+                            <span class="small fw-bold">100%</span>
+                        </div>
+                        <div class="progress rounded-pill" style="height: 8px;">
+                            <div class="progress-bar rounded-pill" role="progressbar" style="width: 100%; background: var(--primary-gradient);"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .ls-wider { letter-spacing: 0.1em; }
+    .border-dashed { border-bottom-style: dashed !important; }
+    .premium-card { position: relative; z-index: 1; }
+</style>
 {% endblock %}
