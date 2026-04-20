@@ -109,17 +109,15 @@ class Sale(models.Model):
 
         discount_factor = (Decimal("100.00") - self.discount) / Decimal("100.00")
 
-        outflows = []
         for item in self.items.all():
             discount_unit_price = (item.unit_price * discount_factor).quantize(Decimal("0.01"))
-            outflows.append(Outflow(
+            Outflow.objects.create(
                 product=item.product,
                 quantity=item.quantity,
                 company=self.company,
                 sale_reference=f"Venda {self.id}",
                 description=f"Venda PDV ({self.id}). Unit com desconto: R$ {discount_unit_price}"
-            ))
-        Outflow.objects.bulk_create(outflows)
+            )
 
 
 class SaleItem(models.Model):

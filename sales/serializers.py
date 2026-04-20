@@ -19,7 +19,7 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = '__all__'
-        read_only_fields = ('total', 'sale_date')
+        read_only_fields = ('total', 'sale_date', 'company')
         extra_kwargs = {
             'discount': {'min_value': 0, 'max_value': 100},
             'cashier': {'required': False}
