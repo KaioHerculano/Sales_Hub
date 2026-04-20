@@ -1,0 +1,36 @@
+[project]
+name = "sales-hub"
+version = "0.1.0"
+description = "Modern Sales Hub Management System"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "Django>=5.1.6",
+    "django-crispy-forms>=2.3",
+    "crispy-bootstrap5>=2024.10",
+    "django-widget-tweaks>=1.5.0",
+    "djangorestframework>=3.15.2",
+    "djangorestframework-simplejwt>=5.5.0",
+    "python-dotenv>=1.2.2",
+    "pillow>=11.1.0",
+    "psycopg2-binary>=2.9.10",
+    "requests>=2.32.3",
+    "weasyprint>=67.0",
+    "reportlab>=4.3.1",
+    "brotli>=1.2.0",
+    "lxml>=5.4.0",
+    "PyNFe @ git+https://github.com/TadaSoftware/PyNFe.git@c549adf70aa3fe2ebbf2bafbf1bcdc8291bf8967",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-django>=4.8.0",
+    "model-bakery>=1.17.0",
+    "pytest-cov>=7.1.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "app.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--reuse-db"
