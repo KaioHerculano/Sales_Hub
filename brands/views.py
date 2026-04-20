@@ -59,15 +59,14 @@ class BrandDeleteView(LoginRequiredMixin, PermissionRequiredMixin, CompanyObject
     success_url = reverse_lazy('brand_list')
     permission_required = 'brands.delete_brand'
 
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
+    def form_valid(self, form):
         try:
             success_url = self.get_success_url()
             self.object.delete()
             return HttpResponseRedirect(success_url)
         except ProtectedError:
             messages.error(
-                request,
+                self.request,
                 "Não é possível excluir. Há produtos vinculados a esta marca!"
             )
             return self.render_to_response(self.get_context_data())
