@@ -21,5 +21,11 @@ class Product(models.Model):
     class Meta:
         ordering = ['title']
 
+    @property
+    def margin(self):
+        if self.selling_price and self.cost_price:
+            return self.selling_price - self.cost_price
+        return 0
+
     def __str__(self):
         return self.title

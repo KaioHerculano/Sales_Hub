@@ -5,9 +5,10 @@
 
 {% block content %}
 <div class="container-fluid p-0">
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="{% url 'sale_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+    <!-- Navegação -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <a href="{% url 'sale_list' %}" class="btn btn-light rounded-pill d-inline-flex align-items-center gap-2 px-3 shadow-sm mb-2 mb-md-0">
                 <i class="bi bi-arrow-left"></i>
                 <span>Voltar para Lista</span>
             </a>
@@ -15,67 +16,72 @@
     </div>
 
     <div class="row g-4">
+        <!-- Resumo Lateral -->
         <div class="col-lg-4">
-            <div class="premium-card p-4 h-100 shadow-sm border-0">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h5 class="fw-bold mb-0">Resumo da Venda</h5>
+            <div class="premium-card p-4 h-100 shadow-sm border-0 d-flex flex-column gap-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="fw-bold mb-0 text-primary">Resumo da Venda</h5>
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">#{{ sale.id }}</span>
                 </div>
 
-                <div class="d-flex flex-column gap-4">
-                    <div class="p-3 rounded-4 bg-light bg-opacity-50">
-                        <label class="text-muted small text-uppercase fw-bold d-block mb-1">Cliente</label>
-                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                            <i class="bi bi-person-circle text-primary"></i>
-                            {{ sale.client }}
+                <div class="p-3 rounded-4 bg-light bg-opacity-50 border shadow-sm">
+                    <label class="text-muted small text-uppercase fw-bold d-block mb-1">Cliente</label>
+                    <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-person-circle text-primary"></i>
+                        {{ sale.client }}
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-light bg-opacity-25 border text-center h-100">
+                            <label class="text-muted smallest text-uppercase fw-bold d-block mb-1">Data</label>
+                            <span class="fw-bold d-block">{{ sale.sale_date|date:"d/m/Y" }}</span>
+                            <span class="text-muted smallest">{{ sale.sale_date|date:"H:i" }}</span>
                         </div>
                     </div>
-
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Data</label>
-                            <span class="fw-medium">{{ sale.sale_date|date:"d/m/Y" }}</span>
-                            <div class="text-muted smaller">{{ sale.sale_date|date:"H:i" }}</div>
-                        </div>
-                        <div class="col-6">
-                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Pagamento</label>
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2">
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-light bg-opacity-25 border text-center h-100">
+                            <label class="text-muted smallest text-uppercase fw-bold d-block mb-1">Pagamento</label>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 mt-1">
                                 {{ sale.get_payment_method_display }}
                             </span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Vendedor</label>
-                            <span class="small fw-medium">{{ sale.seller }}</span>
-                        </div>
-                        <div class="col-6">
-                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Desconto</label>
-                            <span class="text-danger fw-bold">{{ sale.discount }}%</span>
-                        </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="text-muted smallest text-uppercase fw-bold d-block mb-1">Vendedor</label>
+                        <span class="small fw-medium"><i class="bi bi-person-badge me-1"></i>{{ sale.seller }}</span>
                     </div>
+                    <div class="col-6 text-end">
+                        <label class="text-muted smallest text-uppercase fw-bold d-block mb-1">Desconto</label>
+                        <span class="text-danger fw-bold"><i class="bi bi-percent me-1"></i>{{ sale.discount }}</span>
+                    </div>
+                </div>
 
-                    <div class="mt-4 pt-4 border-top">
-                        <label class="text-muted small text-uppercase fw-bold d-block mb-2 text-center">Total da Venda</label>
-                        <div class="text-center">
-                            <h2 class="fw-bold text-primary mb-0">R$ {{ sale.total }}</h2>
-                        </div>
+                <div class="mt-auto pt-4 border-top">
+                    <div class="p-4 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-10 text-center shadow-sm">
+                        <label class="text-muted small text-uppercase fw-bold d-block mb-2">Total Recebido</label>
+                        <h1 class="fw-bold text-primary mb-0">R$ {{ sale.total }}</h1>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Itens da Venda -->
         <div class="col-lg-8">
-            <div class="premium-card p-0 overflow-hidden shadow-sm border-0 h-100">
-                <div class="p-4 border-bottom bg-light bg-opacity-25">
+            <div class="premium-card p-0 overflow-hidden shadow-sm border-0 h-100 d-flex flex-column">
+                <div class="p-4 border-bottom bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
                         <i class="bi bi-cart-check-fill text-success"></i>
-                        Itens Vendidos
+                        Itens Faturados
                     </h5>
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 rounded-pill">{{ sale.items.count }} itens</span>
                 </div>
                 
-                <div class="table-responsive">
+                <div class="table-responsive flex-grow-1">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -90,18 +96,18 @@
                             <tr>
                                 <td class="ps-4">
                                     <div class="fw-bold">{{ item.product.title }}</div>
-                                    <div class="text-muted smaller">{{ item.product.brand }}</div>
+                                    <div class="text-muted smaller"><i class="bi bi-tag me-1"></i>{{ item.product.brand }}</div>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge bg-light text-dark border px-3">{{ item.quantity }}</span>
+                                    <span class="badge bg-light text-dark border px-3 fw-bold">{{ item.quantity }}</span>
                                 </td>
                                 <td class="text-end text-muted">R$ {{ item.unit_price }}</td>
-                                <td class="pe-4 text-end fw-bold">R$ {{ item.subtotal|floatformat:2 }}</td>
+                                <td class="pe-4 text-end fw-bold text-dark">R$ {{ item.subtotal|floatformat:2 }}</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
-                                    Nenhum item nesta venda.
+                                <td colspan="4" class="text-center py-5 text-muted italic">
+                                    Nenhum item registrado nesta venda.
                                 </td>
                             </tr>
                             {% endfor %}
@@ -111,10 +117,13 @@
 
                 <div class="p-4 bg-light bg-opacity-10 border-top mt-auto">
                     <div class="d-flex justify-content-between align-items-center px-2">
-                        <span class="text-muted fw-bold small text-uppercase">Itens Totais: {{ sale.items.count }}</span>
+                        <div class="text-muted small">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Venda confirmada e estoque atualizado.
+                        </div>
                         <div class="text-end">
-                            <span class="text-muted small me-2">Subtotal Geral:</span>
-                            <span class="fw-bold">R$ {{ sale.total }}</span>
+                            <span class="text-muted small me-2 text-uppercase fw-bold">Subtotal Final:</span>
+                            <span class="fw-bold fs-5 text-primary">R$ {{ sale.total }}</span>
                         </div>
                     </div>
                 </div>
@@ -122,4 +131,9 @@
         </div>
     </div>
 </div>
+
+<style>
+    .smallest { font-size: 0.7rem; }
+    .italic { font-style: italic; }
+</style>
 {% endblock %}

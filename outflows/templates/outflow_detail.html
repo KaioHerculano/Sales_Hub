@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalhes da Saída | Sales Hub{% endblock %}
-{% block page_title %}Detalhes da Saída de Estoque{% endblock %}
+{% block title %}Saída #{{ object.id }} | Sales Hub{% endblock %}
+{% block page_title %}Detalhes da Saída{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-0">
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="{% url 'outflow_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <a href="{% url 'outflow_list' %}" class="btn btn-light rounded-pill d-inline-flex align-items-center gap-2 px-3 shadow-sm mb-2 mb-md-0">
                 <i class="bi bi-arrow-left"></i>
                 <span>Voltar para Lista</span>
             </a>
@@ -16,45 +16,51 @@
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="premium-card p-4 h-100 shadow-sm border-0">
-                <div class="d-flex align-items-center gap-3 mb-5 pb-4 border-bottom">
-                    <div class="rounded-4 d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger" style="width: 64px; height: 64px;">
-                        <i class="bi bi-box-arrow-up fs-2"></i>
-                    </div>
-                    <div>
-                        <h2 class="fw-bold mb-0">{{ object.product.title }}</h2>
-                        <span class="text-muted small">Saída ID: #{{ object.id }}</span>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4 bg-light bg-opacity-50 h-100 border">
-                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Referência de Venda</label>
-                            <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                                <i class="bi bi-receipt text-muted"></i>
-                                {% if object.sale_reference %}
-                                    <span class="badge bg-secondary">Venda #{{ object.sale_reference }}</span>
+            <div class="premium-card p-5 h-100 shadow-sm border-0 position-relative overflow-hidden">
+                <div class="position-relative">
+                    <div class="row g-4 align-items-center mb-5 pb-4 border-bottom">
+                        <div class="col-md-auto">
+                            <div class="rounded-4 overflow-hidden border border-secondary border-opacity-10 shadow-sm d-flex align-items-center justify-content-center" style="width: 200px; background: rgba(0,0,0,0.05);">
+                                {% if object.product.photo %}
+                                    <img src="{{ object.product.photo.url }}" alt="{{ object.product.title }}" class="img-fluid" style="width: 100%; height: auto; display: block;">
                                 {% else %}
-                                    -
+                                    <div class="py-4 text-center w-100">
+                                        <i class="bi bi-box-arrow-up fs-1 text-danger opacity-50"></i>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
+                        <div class="col-md">
+                            <span class="text-danger fw-bold text-uppercase small ls-wider d-block mb-1">Saída de Estoque</span>
+                            <h1 class="fw-bold mb-0 display-6" style="text-shadow: none;">{{ object.product.title }}</h1>
+                            <span class="text-muted small">ID da Operação: #{{ object.id }}</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="p-3 rounded-4 bg-danger bg-opacity-10 h-100 border border-danger border-opacity-10">
-                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Quantidade Retirada</label>
-                            <div class="fw-bold text-danger fs-4">
-                                {{ object.quantity }} <small class="fw-normal">unidades</small>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">Volume de Retirada</h6>
+                            <div class="p-4 rounded-4 bg-danger bg-opacity-10 border border-danger border-opacity-10 shadow-sm">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-white bg-opacity-10 rounded-3 p-2 shadow-sm">
+                                        <i class="bi bi-dash-lg text-danger"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted smallest">Quantidade Removida</div>
+                                        <div class="fw-bold text-danger fs-4">{{ object.quantity }} unidades</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     {% if object.description %}
                     <div class="col-12">
-                        <label class="text-muted small text-uppercase fw-bold d-block mb-2">Observações / Motivo</label>
-                        <div class="p-3 rounded-4 bg-light bg-opacity-25 border">
-                            <p class="mb-0 text-muted">{{ object.description }}</p>
+                        <h6 class="fw-bold text-muted text-uppercase small mb-3">Motivo / Descrição</h6>
+                        <div class="p-4 rounded-4 bg-light bg-opacity-10 border-start border-4 border-danger shadow-sm">
+                            <p class="mb-0 lh-base italic">
+                                "{{ object.description }}"
+                            </p>
                         </div>
                     </div>
                     {% endif %}
@@ -63,33 +69,43 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="premium-card p-4 h-100 shadow-sm border-0">
-                <h5 class="fw-bold mb-4">Informações de Registro</h5>
-                <div class="d-flex flex-column gap-4">
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
-                        <div class="text-muted small">Data da Baixa</div>
-                        <div class="text-end">
-                            <div class="fw-bold">{{ object.created_at|date:"d/m/Y" }}</div>
-                            <div class="text-muted smaller">{{ object.created_at|date:"H:i" }}</div>
+            <div class="d-flex flex-column gap-4 h-100">
+                <div class="premium-card p-4 shadow-sm border-0">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-clock-history text-danger"></i>
+                        Registro Temporal
+                    </h5>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-white border-opacity-10 border-dashed">
+                            <span class="text-muted small">Data do Registro</span>
+                            <span class="fw-medium">{{ object.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-white border-opacity-10 border-dashed">
+                            <span class="text-muted small">Hora do Registro</span>
+                            <span class="fw-medium">{{ object.created_at|date:"H:i" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Operação</span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">PROCESSADA</span>
                         </div>
                     </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">Tipo de Movimento</div>
-                        <span class="badge bg-danger rounded-pill px-3">Saída</span>
-                    </div>
+                </div>
 
-                    <div class="mt-4 p-3 rounded-4 bg-danger bg-opacity-5 border border-danger border-opacity-10">
-                        <div class="d-flex gap-2">
-                            <i class="bi bi-exclamation-circle-fill text-danger"></i>
-                            <div class="text-muted small">
-                                Esta é uma operação de saída confirmada. O estoque do produto foi reduzido automaticamente.
-                            </div>
-                        </div>
-                    </div>
+                <div class="premium-card p-4 shadow-sm border-0 bg-dark bg-opacity-25 flex-grow-1">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 text-muted">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        Auditoria
+                    </h5>
+                    <p class="text-muted small">Registros de saída são permanentes para garantir a integridade do histórico de inventário.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .smallest { font-size: 0.7rem; }
+    .ls-wider { letter-spacing: 0.1em; }
+    .border-dashed { border-bottom-style: dashed !important; }
+</style>
 {% endblock %}

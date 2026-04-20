@@ -1,96 +1,132 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if object.pk %}Editar Orçamento{% else %}Novo Orçamento{% endif %} | Sales Hub{% endblock %}
+{% block page_title %}{% if object.pk %}Editar Orçamento{% else %}Novo Orçamento{% endif %}{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h2 class="mt-4">Editar Orçamento</h2>
-  <form method="post" novalidate>
-    {% csrf_token %}
-    
-    <div class="row">
-      <div class="col-md-6">
-        <div class="card mb-4">
-          <div class="card-header">
-            Dados do Cliente e Vendedor
-          </div>
-          <div class="card-body">
-            <div class="form-group">
-              <label for="{{ form.client.id_for_label }}">Cliente</label>
-              {{ form.client }}
-            </div>
-            <div class="form-group">
-              <label for="{{ form.seller.id_for_label }}">Vendedor</label>
-              {{ form.seller }}
-            </div>
-          </div>
+<div class="container-fluid p-0">
+    <div class="row mb-4">
+        <div class="col-12 text-start">
+            <a href="{% url 'budget_list' %}" class="btn btn-light d-inline-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-arrow-left"></i>
+                <span>Voltar para Lista</span>
+            </a>
         </div>
-      </div>
+    </div>
 
-      <div class="col-md-6">
-        <div class="card mb-4">
-          <div class="card-header">
-            Dados de Desconto, Validade e Status
-          </div>
-          <div class="card-body">
-            <div class="form-group">
-              <label for="{{ form.discount.id_for_label }}">Desconto (%)</label>
-              {{ form.discount }}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-4">
+            <!-- Dados Gerais -->
+            <div class="col-lg-6">
+                <div class="premium-card p-4 h-100 shadow-sm border-0">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-badge text-primary"></i>
+                        Dados do Cliente e Vendedor
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.client.id_for_label }}" class="form-label fw-bold text-muted small text-uppercase">Cliente</label>
+                            {% render_field form.client class="form-control rounded-3" %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.seller.id_for_label }}" class="form-label fw-bold text-muted small text-uppercase">Vendedor</label>
+                            {% render_field form.seller class="form-control rounded-3" %}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-              <label for="{{ form.expiration_date.id_for_label }}">Data de Validade</label>
-              {{ form.expiration_date }}
+
+            <!-- Dados Complementares -->
+            <div class="col-lg-6">
+                <div class="premium-card p-4 h-100 shadow-sm border-0">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        Desconto, Validade e Status
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.discount.id_for_label }}" class="form-label fw-bold text-muted small text-uppercase">Desconto (%)</label>
+                            {% render_field form.discount class="form-control rounded-3" %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.expiration_date.id_for_label }}" class="form-label fw-bold text-muted small text-uppercase">Data de Validade</label>
+                            {% render_field form.expiration_date class="form-control rounded-3" type="date" %}
+                        </div>
+                        {% if form.order_status %}
+                        <div class="col-12">
+                            <label for="{{ form.order_status.id_for_label }}" class="form-label fw-bold text-muted small text-uppercase">Estado do Orçamento</label>
+                            {% render_field form.order_status class="form-control rounded-3" %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            {% if form.order_status %}
-            <div class="form-group">
-              <label for="{{ form.order_status.id_for_label }}">Estado do Orçamento</label>
-              {{ form.order_status }}
+
+            <!-- Itens do Orçamento -->
+            <div class="col-12">
+                <div class="premium-card overflow-hidden shadow-sm border-0">
+                    <div class="p-4 border-bottom bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-list-check text-primary"></i>
+                            Itens do Orçamento
+                        </h5>
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" id="add-item">
+                            <i class="bi bi-plus-lg me-1"></i>Adicionar Produto
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        {{ formset.management_form }}
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">Produto</th>
+                                    <th class="py-3 text-uppercase small fw-bold text-muted text-center" style="width: 150px;">Quantidade</th>
+                                    <th class="py-3 text-uppercase small fw-bold text-muted text-end" style="width: 180px;">Preço Unitário</th>
+                                    <th class="pe-4 py-3 text-uppercase small fw-bold text-muted text-center" style="width: 100px;">Excluir?</th>
+                                </tr>
+                            </thead>
+                            <tbody id="items-container" class="border-top-0">
+                                {% for form in formset %}
+                                <tr class="item-row">
+                                    {% if form.id %}{{ form.id }}{% endif %}
+                                    <td class="ps-4">{% render_field form.product class="form-control form-control-sm rounded-2" %}</td>
+                                    <td class="text-center">{% render_field form.quantity class="form-control form-control-sm rounded-2 text-center" %}</td>
+                                    <td class="text-end">{% render_field form.unit_price class="form-control form-control-sm rounded-2 text-end" %}</td>
+                                    <td class="pe-4 text-center">
+                                        <div class="form-check d-flex justify-content-center">
+                                            {% render_field form.DELETE class="form-check-input" %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <!-- Template para novo item -->
+                                <tr class="d-none" id="empty-item">
+                                    <td class="ps-4">{% render_field formset.empty_form.product class="form-control form-control-sm rounded-2" %}</td>
+                                    <td class="text-center">{% render_field formset.empty_form.quantity class="form-control form-control-sm rounded-2 text-center" %}</td>
+                                    <td class="text-end">{% render_field formset.empty_form.unit_price class="form-control form-control-sm rounded-2 text-end" %}</td>
+                                    <td class="pe-4 text-center">
+                                        <div class="form-check d-flex justify-content-center">
+                                            {% render_field formset.empty_form.DELETE class="form-check-input" %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            {% endif %}
-          </div>
+
+            <!-- Botões de Ação -->
+            <div class="col-12 mt-4 d-flex gap-3 justify-content-end">
+                <a href="{% url 'budget_list' %}" class="btn btn-light px-5 py-2 rounded-pill fw-bold border">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold shadow-sm" style="background: var(--primary-gradient); border: none;">
+                    <i class="bi bi-check-lg me-2"></i>Salvar Orçamento
+                </button>
+            </div>
         </div>
-      </div>
-    </div>
-    
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Itens do Orçamento</span>
-            <button type="button" class="btn btn-primary btn-sm" id="add-item">Adicionar Produto</button>
-          </div>
-      <div class="card-body">
-        {{ formset.management_form }}
-        <table class="table table-bordered">
-          <thead class="thead-light">
-            <tr>
-              <th>Produto</th>
-              <th>Quantidade</th>
-              <th>Preço Unitário</th>
-              <th>Excluir?</th>
-            </tr>
-          </thead>
-          <tbody id="items-container">
-            {% for form in formset %}
-            {{ form.id }}
-            {{ form.sale }}
-            <tr class="item-row">
-              <td>{{ form.product }}</td>
-              <td>{{ form.quantity }}</td>
-              <td>{{ form.unit_price }}</td>
-              <td class="text-center">{{ form.DELETE }}</td>
-            </tr>
-            {% endfor %}
-            <tr class="d-none" id="empty-item">
-              <td>{{ formset.empty_form.product }}</td>
-              <td>{{ formset.empty_form.quantity }}</td>
-              <td>{{ formset.empty_form.unit_price }}</td>
-              <td class="text-center">{{ formset.empty_form.DELETE }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    
-    <button type="submit" class="btn btn-success">Salvar Orçamento</button>
-    <a href="{% url 'budget_list' %}" class="btn btn-secondary">Cancelar e Voltar</a>
-  </form>
+    </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -98,10 +134,12 @@
   function updateFormIndices() {
     $('.item-row').each(function(i) {
       $(this).find('input, select').each(function() {
-        const name = $(this).attr('name').replace(/-\d+-/, '-' + i + '-');
-        $(this).attr('name', name);
-        const id = $(this).attr('id').replace(/-\d+-/, '-' + i + '-');
-        $(this).attr('id', id);
+        if ($(this).attr('name')) {
+            const name = $(this).attr('name').replace(/-\d+-|__prefix__/, '-' + i + '-');
+            $(this).attr('name', name);
+            const id = $(this).attr('id').replace(/-\d+-|__prefix__/, '-' + i + '-');
+            $(this).attr('id', id);
+        }
       });
     });
   }
@@ -138,4 +176,14 @@
     }
   });
 </script>
+
+<style>
+    .form-control:focus {
+        border-color: #a855f7;
+        box-shadow: 0 0 0 0.25rem rgba(168, 85, 247, 0.1);
+    }
+    .item-row:hover {
+        background-color: rgba(99, 102, 241, 0.02);
+    }
+</style>
 {% endblock %}
