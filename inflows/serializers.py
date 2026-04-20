@@ -7,3 +7,4 @@ class InflowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inflow
         fields = '__all__'
+        read_only_fields = ['company']
